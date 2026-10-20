@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOEIC® Part 7 Speed Reader Pro — 1ヶ月高速読解ブートキャンプ</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    }
+    .english-text {
+      font-family: 'Inter', Georgia, serif;
+      line-height: 1.85;
+      letter-spacing: 0.01em;
+    }
+    .chunk-item {
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.25rem;
+      display: inline-block;
+      margin: 0.08rem 0.05rem;
+    }
+    .chunk-active {
+      background-color: rgba(99, 102, 241, 0.22);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.55);
+      transform: translateY(-1px);
+      font-weight: 600;
+    }
+    .dark .chunk-active {
+      background-color: rgba(99, 102, 241, 0.38);
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.7);
+    }
+    .chunk-erased {
+      opacity: 0.07;
+      filter: blur(3px);
+      user-select: none;
+      pointer-events: none;
+    }
+    .mod-fat {
+      transition: opacity 0.25s ease;
+    }
+    .fat-masked {
+      opacity: 0.28;
+      font-size: 0.92em;
+    }
+    .svoc-s { background-color: rgba(59, 130, 246, 0.18); border-bottom: 2px solid #3b82f6; padding: 0 2px; border-radius: 3px; }
+    .svoc-v { background-color: rgba(239, 68, 68, 0.18); border-bottom: 2px solid #ef4444; padding: 0 2px; border-radius: 3px; font-weight: 600; }
+    .svoc-o { background-color: rgba(16, 185, 129, 0.18); border-bottom: 2px solid #10b981; padding: 0 2px; border-radius: 3px; }
+    .svoc-c { background-color: rgba(245, 158, 11, 0.18); border-bottom: 2px solid #f59e0b; padding: 0 2px; border-radius: 3px; }
+    .radar-time { background-color: rgba(168, 85, 247, 0.22); border: 1px dashed #a855f7; padding: 0 3px; border-radius: 4px; }
+    .radar-person { background-color: rgba(236, 72, 153, 0.22); border: 1px dashed #ec4899; padding: 0 3px; border-radius: 4px; }
+    .radar-cond { background-color: rgba(234, 179, 8, 0.25); border: 1px dashed #eab308; padding: 0 3px; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white">TOEIC® Speed Reader Pro</h1>
+            <span class="hidden sm:inline-block text-[11px] font-semibold uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">30-Day Bootcamp</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden md:block">「ゆっくりなら読める」から「150+ WPMで英語のまま即理解」へ進化するPart 7特訓スイート</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 overflow-x-auto max-w-full py-1" aria-label="Main Navigation">
+        <button type="button" data-tab="trainer" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm">
+          ⚡ 高速読解トレーナー
+        </button>
+        <button type="button" data-tab="vocab" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          🎯 1秒単語＆言い換え
+        </button>
+        <button type="button" data-tab="dashboard" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          📅 1ヶ月計画＆記録
+        </button>
+        <button type="button" data-tab="method" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          📘 速読コア講義＆診断
+        </button>
+        <button type="button" data-tab="custom" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          🛠️ カスタム英文＆単語帳
+        </button>
+      </nav>
+
+      <!-- Quick Status & Controls -->
+      <div class="flex items-center gap-2">
+        <div class="hidden lg:flex items-center gap-3 bg-slate-100 dark:bg-slate-800/80 px-3 py-1 rounded-lg text-xs font-medium">
+          <span>平均: <strong id="headerAvgWpm" class="text-indigo-600 dark:text-indigo-400">128 WPM</strong></span>
+          <span class="text-slate-300 dark:text-slate-600">|</span>
+          <span>目標: <strong class="text-emerald-600 dark:text-emerald-400">160 WPM</strong></span>
+        </div>
+        <button type="button" id="soundToggleBtn" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold" title="リズム音ON/OFF">
+          🔊 音ON
+        </button>
+        <button type="button" id="themeToggleBtn" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold" title="ダークモード切替">
+          🌙
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-5">
+
+    <!-- ==========================================
+         TAB 1: SPEED TRAINER (5大トレーニングモード)
+         ========================================== -->
+    <section id="tab-trainer" class="tab-panel space-y-5">
+      <!-- Top Control Bar: Passage Selector & Mode Selector -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <!-- Passage Selector -->
+          <div class="lg:col-span-5">
+            <label for="passageSelect" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+              📄 トレーニング問題を選択（Week 1 リハビリ 〜 Week 4 本番マルチ）
+            </label>
+            <select id="passageSelect" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </select>
+          </div>
+
+          <!-- Training Mode Selector -->
+          <div class="lg:col-span-7">
+            <span class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+              🎛️ 5大トレーニングモード切替（目的に合わせて脳の回路を切り替え）
+            </span>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+              <button type="button" data-mode="standard" class="mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-indigo-600 text-white border-indigo-600 shadow-sm text-center">
+                ① 実戦＆先読み
+              </button>
+              <button type="button" data-mode="slash" class="mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-center">
+                ② スラッシュ直訳
+              </button>
+              <button type="button" data-mode="eraser" class="mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-center">
+                ③ 返り読み防止消去
+              </button>
+              <button type="button" data-mode="rsvp" class="mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-center">
+                ④ チャンク高速フラッシュ
+              </button>
+              <button type="button" data-mode="svoc" class="mode-btn col-span-2 sm:col-span-1 px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-center">
+                ⑤ 骨格SVOC＆レーダー
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Speed & Pacemaker Toolbar -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <!-- Left: Target WPM Slider & Pacemaker Controls -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl">
+              <label for="targetWpmSlider" class="text-xs font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">ペース設定:</label>
+              <input id="targetWpmSlider" type="range" min="80" max="300" step="10" value="150" class="w-24 sm:w-32 accent-indigo-600 cursor-pointer" />
+              <span id="targetWpmLabel" class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 min-w-[62px]">150 WPM</span>
+            </div>
+
+            <button type="button" id="startTimerBtn" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+              ▶ 計測＆ガイド開始
+            </button>
+            <button type="button" id="pauseTimerBtn" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-all hidden">
+              ⏸ 一時停止
+            </button>
+            <button type="button" id="finishReadingBtn" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all hidden">
+              ⏹ 読み終わり！（WPM確定＆設問へ）
+            </button>
+            <button type="button" id="resetTrainerBtn" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-all">
+              ↺ リセット
+            </button>
+          </div>
+
+          <!-- Right: Live Telemetry & TTS Audio Controls -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex items-center gap-3 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 px-3 py-1.5 rounded-xl text-xs">
+              <div>⏱ 経過: <strong id="liveElapsed" class="font-mono text-indigo-700 dark:text-indigo-300">00:00</strong></div>
+              <div>⚡ 実測: <strong id="liveWpm" class="font-mono text-emerald-700 dark:text-emerald-400">-- WPM</strong></div>
+              <div>📏 語数: <strong id="passageWordCount" class="font-mono">0</strong> words</div>
+            </div>
+
+            <!-- Web Speech API TTS -->
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl">
+              <button type="button" id="ttsPlayBtn" class="text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 px-1.5 py-0.5" title="英語音声でペースメーカー読み上げ / シャドーイング">
+                🎧 音声読み上げ
+              </button>
+              <select id="ttsRateSelect" aria-label="音声速度" class="bg-transparent text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none">
+                <option value="0.8">0.8x (ゆっくり)</option>
+                <option value="1.0" selected>1.0x (標準 150wpm)</option>
+                <option value="1.2">1.2x (速め 180wpm)</option>
+                <option value="1.4">1.4x (高速倍速)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode-Specific Sub-Controls Banner -->
+        <div id="modeBanner" class="rounded-xl bg-slate-100 dark:bg-slate-800/90 px-3.5 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2">
+          <div id="modeDescription" class="text-slate-700 dark:text-slate-300 font-medium">
+            💡 <strong>① 実戦＆設問先読みモード:</strong> まず右パネル（または上部）の「設問文だけ（選択肢はノイズなので見ない）」を10秒で先読みし、▶計測開始を押して本文を一気に読みます。
+          </div>
+          <!-- Dynamic Toggles for Slash / SVOC / Eraser -->
+          <div id="modeExtraControls" class="flex flex-wrap items-center gap-2">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              <input type="checkbox" id="toggleChunkJp" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span class="font-semibold">チャンク直訳(日本語)を常時表示</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              <input type="checkbox" id="toggleFatMask" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span class="font-semibold">贅肉(修飾語・副詞句)を薄くマスク</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              <input type="checkbox" id="toggleInfoRadar" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span class="font-semibold">情報連結レーダー(日時・人物・条件)強調</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1 Pre-reading Question Preview Bar (10-second Question Preview Strategy) -->
+      <div class="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[11px] font-extrabold uppercase">Z会・プロ講師推奨 Step 1</span>
+            <h2 class="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">設問10秒先読みバー（選択肢はノイズになるため最初は隠しています）</h2>
+          </div>
+          <div id="questionPreviewList" class="text-xs sm:text-sm text-amber-950 dark:text-amber-100 font-medium space-y-0.5 pl-1">
+          </div>
+        </div>
+        <button type="button" id="toggleChoicesPreviewBtn" class="shrink-0 px-3 py-1.5 rounded-xl bg-amber-200/80 dark:bg-amber-900/60 hover:bg-amber-300 text-amber-900 dark:text-amber-100 text-xs font-bold transition-all">
+          👁 選択肢を表示/非表示
+        </button>
+      </div>
+
+      <!-- Main Split Workspace: Left Reading Canvas (7 cols) + Right Questions & Analysis (5 cols) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- Left Column: Passage Reading Area -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <!-- Passage Metadata Header -->
+          <div class="bg-slate-100/80 dark:bg-slate-800/70 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span id="passageBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/70 dark:text-indigo-300">Week 1</span>
+              <h2 id="passageTitle" class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">Passage Title</h2>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <span>目標読了: <strong id="passageTargetSec" class="text-slate-700 dark:text-slate-200">60秒</strong></span>
+              <span>•</span>
+              <button type="button" id="fontSizeDownBtn" class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" title="文字を小さく">A-</button>
+              <button type="button" id="fontSizeUpBtn" class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" title="文字を大きく">A+</button>
+            </div>
+          </div>
+
+          <!-- Info-Linking Hint Box (Relationship / Domain / Timeline tip) -->
+          <div id="infoLinkHintBox" class="bg-indigo-50/60 dark:bg-indigo-950/30 px-4 py-2.5 border-b border-indigo-100 dark:border-indigo-900/50 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2">
+            <span class="font-bold shrink-0">🔗 情報連結の着眼点:</span>
+            <span id="infoLinkHintText">ヘッダーの送信者・受信者ドメイン（@以降）と冒頭1文から「誰が・誰に・何の目的で」連絡しているかを最初にロックしましょう。</span>
+          </div>
+
+          <!-- RSVP High-Speed Flash Stage (Shown only in Mode 4: RSVP) -->
+          <div id="rsvpStage" class="hidden p-6 sm:p-10 flex flex-col items-center justify-center min-h-[320px] bg-slate-900 text-white relative">
+            <div class="text-xs uppercase tracking-widest text-indigo-400 font-bold mb-2">RSVP High-Speed Chunk Flash</div>
+            <div class="w-full max-w-xl h-1.5 bg-slate-800 rounded-full overflow-hidden mb-6">
+              <div id="rsvpProgressBar" class="h-full bg-indigo-500 transition-all duration-150" style="width: 0%"></div>
+            </div>
+            <!-- Focal Point Marker -->
+            <div class="w-full max-w-2xl min-h-[130px] rounded-2xl bg-slate-800/90 border border-slate-700 px-6 py-6 flex flex-col items-center justify-center text-center shadow-inner">
+              <div id="rsvpChunkEn" class="text-2xl sm:text-3xl font-bold tracking-wide text-white english-text">Press Start to Flash Chunks</div>
+              <div id="rsvpChunkJp" class="text-sm text-indigo-300 mt-3 font-medium">「▶ 計測＆ガイド開始」を押すとチャンクが高速表示されます</div>
+            </div>
+            <div class="flex items-center gap-3 mt-6">
+              <button type="button" id="rsvpPrevBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold">⏮ 前のチャンク</button>
+              <span id="rsvpCounter" class="text-xs font-mono text-slate-400">0 / 0</span>
+              <button type="button" id="rsvpNextBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold">次のチャンク ⏭</button>
+            </div>
+          </div>
+
+          <!-- Standard / Slash / Eraser / SVOC Passage Body -->
+          <div id="passageBodyContainer" class="p-4 sm:p-6 space-y-4 english-text text-base">
+          </div>
+
+          <!-- Key Vocabulary Bar at bottom of Passage -->
+          <div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-600 dark:text-slate-300">📌 パッセージ重要語彙・表現（クリックでMy単語帳に保存）</span>
+              <span class="text-[11px] text-slate-400">※単語をクリックするとブックマーク登録されます</span>
+            </div>
+            <div id="passageVocabList" class="flex flex-wrap gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Comprehension Questions & Score Analysis (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">📝 Part 7 設問演習（1問1分ペース）</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">30秒以上悩む問題はスキップ判断も重要！</p>
+              </div>
+              <span id="questionScoreBadge" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                未採点
+              </span>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questionsContainer" class="space-y-4"></div>
+
+            <!-- Submit & Show Explanation Buttons -->
+            <div class="pt-2 flex flex-wrap items-center gap-2">
+              <button type="button" id="submitAnswersBtn" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all">
+                ✔ 解答を採点してWPM＆正答率を記録
+              </button>
+              <button type="button" id="toggleFullTranslationBtn" class="py-2.5 px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+                📖 全文和訳＆構造解説
+              </button>
+            </div>
+
+            <!-- Full Translation & Structural Breakdown Drawer -->
+            <div id="fullTranslationBox" class="hidden mt-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2 leading-relaxed">
+              <div class="font-bold text-indigo-600 dark:text-indigo-400">【全文自然な和訳＆情報連結ポイント】</div>
+              <div id="fullTranslationText" class="text-slate-700 dark:text-slate-200 space-y-1.5"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 2: 1-SECOND VOCAB & PARAPHRASE BLITZ
+         ========================================== -->
+    <section id="tab-vocab" class="tab-panel hidden space-y-5">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300">認知負荷ゼロ化ドリル</span>
+            <h2 class="text-lg sm:text-xl font-extrabold mt-1">🎯 1秒英単語＆Part 7言い換え（Paraphrase）瞬発ブリッツ</h2>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              「ゆっくりなら読めるのに遅い」最大の原因は、1単語を思い出すのに1.5〜3秒かかっていること。<strong>1秒以内の即答回路</strong>と<strong>本文⇔正解選択肢の言い換え直感</strong>を鍛えます。
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="blitzCategorySelect" aria-label="ドリルカテゴリ" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold">
+              <option value="all">🔥 全カテゴリ総合（頻出語彙＋言い換え）</option>
+              <option value="vocab">⚡ Part 7 最頻出ビジネス語彙（1秒反射）</option>
+              <option value="paraphrase">🔄 Part 7 正解直結！言い換えペア特訓</option>
+              <option value="connector">🧭 展開予測！接続副詞・前置詞句</option>
+            </select>
+            <select id="blitzTimeLimitSelect" aria-label="制限時間" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold">
+              <option value="1200">制限 1.2秒 (超高速)</option>
+              <option value="1800" selected>制限 1.8秒 (標準)</option>
+              <option value="3000">制限 3.0秒 (リハビリ)</option>
+            </select>
+            <button type="button" id="startBlitzBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-sm">
+              ▶ 10問ブリッツ開始
+            </button>
+          </div>
+        </div>
+
+        <!-- Blitz Arena -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 items-center">
+          <div class="lg:col-span-7 bg-slate-900 text-white rounded-2xl p-6 relative overflow-hidden min-h-[290px] flex flex-col justify-between">
+            <!-- Timer bar -->
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="blitzTimerBar" class="h-full bg-emerald-400 transition-all duration-75" style="width: 100%"></div>
+            </div>
+
+            <div class="my-4 text-center space-y-2">
+              <div id="blitzTag" class="text-xs font-bold uppercase tracking-widest text-indigo-400">READY TO BLITZ</div>
+              <div id="blitzPrompt" class="text-2xl sm:text-3xl font-extrabold tracking-tight english-text">「▶ 10問ブリッツ開始」を押してスタート</div>
+              <div id="blitzExample" class="text-xs sm:text-sm text-slate-300 italic english-text">1秒以内に正解パネルをタップしてください</div>
+            </div>
+
+            <div id="blitzChoicesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            </div>
+
+            <div id="blitzFeedback" class="mt-3 text-center text-xs font-bold text-amber-300 min-h-[18px]"></div>
+          </div>
+
+          <!-- Blitz Stats & Paraphrase Reference Table -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="grid grid-cols-3 gap-2.5 text-center">
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div class="text-[11px] text-slate-500 font-semibold">スコア</div>
+                <div id="blitzScoreText" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">0 / 10</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div class="text-[11px] text-slate-500 font-semibold">平均反応速度</div>
+                <div id="blitzAvgTimeText" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">-- 秒</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div class="text-[11px] text-slate-500 font-semibold">連続コンボ</div>
+                <div id="blitzComboText" class="text-xl font-extrabold text-amber-500">0 🔥</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                🔄 Part 7 鉄板の言い換え（本文 ➔ 正解選択肢）早見リスト
+              </h3>
+              <div class="max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 text-xs">
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>complimentary</strong> (無料の)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ free of charge / at no cost</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>mandatory / required</strong> (必須の)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ must / have to</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>prior to</strong> (〜より前に)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ before / in advance</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>inquire about</strong> (〜を尋ねる)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ ask for information</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>accommodate</strong> (収容・対応する)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ have enough space / meet needs</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>reimburse</strong> (払い戻す・精算する)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ pay back expenses</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>postpone / reschedule</strong> (延期する)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ delay / move to a later date</span></div>
+                <div class="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900"><span><strong>defective / faulty</strong> (不良・欠陥の)</span><span class="text-indigo-600 dark:text-indigo-400 font-semibold">➔ not working properly</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: 30-DAY BOOTCAMP & ANALYTICS DASHBOARD
+         ========================================== -->
+    <section id="tab-dashboard" class="tab-panel hidden space-y-5">
+      <!-- KPI Row -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500">現在の平均WPM</div>
+          <div id="dashAvgWpm" class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">128 WPM</div>
+          <div class="text-[11px] text-emerald-600 font-medium mt-1">目標 150〜160 WPM（本番完走ライン）</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500">最高到達スピード</div>
+          <div id="dashBestWpm" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">145 WPM</div>
+          <div class="text-[11px] text-slate-400 mt-1">直近セッションのベスト記録</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500">Part 7 設問正答率</div>
+          <div id="dashAccuracy" class="text-2xl sm:text-3xl font-extrabold text-amber-500 mt-1">82%</div>
+          <div class="text-[11px] text-slate-400 mt-1">「正確さ80%以上を維持して高速化」が鉄則</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500">30日間ブートキャンプ進捗</div>
+          <div id="dashDaysDone" class="text-2xl sm:text-3xl font-extrabold text-violet-600 dark:text-violet-400 mt-1">3 / 30 日</div>
+          <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-2">
+            <div id="dashProgressBar" class="h-full bg-violet-600 transition-all" style="width: 10%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart & Recent Logs -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm sm:text-base">📈 読解スピード (WPM) ＆ 正答率の推移</h3>
+              <p class="text-xs text-slate-500">問題を解いて採点するとリアルタイムにグラフへ追加されます</p>
+            </div>
+            <button type="button" id="addDemoRecordBtn" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 font-semibold">
+              + サンプル記録追加
+            </button>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="wpmChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 30-Day Bootcamp Interactive Tracker -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm sm:text-base">🗓️ 1ヶ月（4週間）スラスラ読解奪還カレンダー</h3>
+              <p class="text-xs text-slate-500">各週タブを切り替えて今日のメニューをチェック＆実行！</p>
+            </div>
+          </div>
+
+          <!-- Week Filter Buttons -->
+          <div class="grid grid-cols-4 gap-1.5 mb-3">
+            <button type="button" data-week="1" class="week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">Week 1</button>
+            <button type="button" data-week="2" class="week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Week 2</button>
+            <button type="button" data-week="3" class="week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Week 3</button>
+            <button type="button" data-week="4" class="week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Week 4</button>
+          </div>
+
+          <div id="weekSummaryBanner" class="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-xs text-indigo-900 dark:text-indigo-200 font-medium mb-2.5">
+          </div>
+
+          <div id="bootcampDaysList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: SPEED READING METHOD & DIAGNOSIS
+         ========================================== -->
+    <section id="tab-method" class="tab-panel hidden space-y-5">
+      <!-- Interactive Bottleneck Diagnosis -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">パーソナル処方箋</span>
+          <h2 class="text-lg font-extrabold mt-1">🩺 「ゆっくりなら読めるけど速く読めない」原因診断チェック</h2>
+          <p class="text-xs text-slate-500">当てはまる症状にチェックを入れると、あなた専用の最優先トレーニング処方箋が表示され、ワンクリックで該当モードを起動できます。</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="diagnosisCheckboxes">
+          <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <input type="checkbox" value="regression" class="diag-check mt-1 rounded text-indigo-600" checked />
+            <span class="text-xs sm:text-sm"><strong>返り読み・きれいな和訳癖:</strong> 関係代名詞や長い文が来ると、後ろから前に戻って日本語の語順に並べ替えてしまう。</span>
+          </label>
+          <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <input type="checkbox" value="vocab_lag" class="diag-check mt-1 rounded text-indigo-600" checked />
+            <span class="text-xs sm:text-sm"><strong>単語の瞬発力不足（ブランク影響）:</strong> 見覚えのある単語でも「えっと、何だっけ…あ、供給するだ」と1〜2秒立ち止まる。</span>
+          </label>
+          <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <input type="checkbox" value="modifier_lost" class="diag-check mt-1 rounded text-indigo-600" />
+            <span class="text-xs sm:text-sm"><strong>修飾語（贅肉）に埋もれる:</strong> 前置詞句や副詞が長く続くと、どれが主語(S)でどれが本動詞(V)か見失う。</span>
+          </label>
+          <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <input type="checkbox" value="memory_drop" class="diag-check mt-1 rounded text-indigo-600" />
+            <span class="text-xs sm:text-sm"><strong>情報のバラバラ現象:</strong> 最後まで目を動かして読んだのに「で、結局誰が何をする話だっけ？」と頭に残らず3回読み直す。</span>
+          </label>
+        </div>
+
+        <div id="diagnosisPrescription" class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-xs sm:text-sm space-y-2">
+        </div>
+      </div>
+
+      <!-- 5 Pillars of TOEIC Speed Reading -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-indigo-600 uppercase">Method 01 • 東大卒コーチ＆ビーコン推奨</div>
+          <h3 class="font-bold text-base">🔪 スラッシュ・リーディング5原則</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            1単語ずつ拾うのでも1文丸ごと和訳するのでもなく、<strong>3〜5語の意味の塊（チャンク）</strong>で前から処理します。区切る場所は次の5つだけ：
+          </p>
+          <ul class="text-xs space-y-1 text-slate-700 dark:text-slate-200 font-medium pl-4 list-disc">
+            <li>① カンマ(,)・ピリオド(.)の文区切り</li>
+            <li>② 接続詞 (because, although等)・関係代名詞 (that, which, who) の<strong>前</strong></li>
+            <li>③ 長い主語(S)の<strong>後</strong>、またはSVOの骨格の<strong>後</strong></li>
+            <li>④ 前置詞句 (in, at, for, from, with + 名詞) の<strong>前</strong></li>
+            <li>⑤ to不定詞 (to + 動詞の原形) の<strong>前</strong></li>
+          </ul>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-emerald-600 uppercase">Method 02 • 骨格ベース読解法</div>
+          <h3 class="font-bold text-base">🦴 骨格(SVOC)を掴み、贅肉(副詞・前置詞句)は流す</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            長文が読みにくいのは、すべての単語を均等な力で100%訳そうとするからです。<strong>文の骨格（誰が・どうする・何を）には脳メモリの80%</strong>を使い、前置詞句や副詞（very likely, gradually等）の「飾り（贅肉）」は20%の力でサラッと流します。
+          </p>
+          <div class="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-mono">
+            <span class="svoc-s">The manager</span> <span class="opacity-40">[of the regional sales division]</span> <span class="svoc-v">approved</span> <span class="svoc-o">the budget</span> <span class="opacity-40">[yesterday afternoon]</span>.
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-amber-600 uppercase">Method 03 • 情報連結リーディング</div>
+          <h3 class="font-bold text-base">🔗 ヘッダー・代名詞・時系列の「情報連結」</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            Part 7に「答えそのもの」は書いてありません。「答えを導くヒント」を頭の中で繋ぐ必要があります：
+          </p>
+          <ul class="text-xs space-y-1 text-slate-700 dark:text-slate-200 font-medium pl-4 list-disc">
+            <li><strong>ドメイン確認:</strong> `@lindy.com` と `@beargoose.com` なら別会社間の連絡と即断！</li>
+            <li><strong>代名詞ロック:</strong> `my department` なら相手は別部署、`our` なら同部署。</li>
+            <li><strong>時系列変換:</strong> 4月17日のメールで `last month` とあれば頭の中で即「3月」に変換！</li>
+          </ul>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-rose-600 uppercase">Method 04 • Z会・満点講師のタイムマネジメント</div>
+          <h3 class="font-bold text-base">⏱ 1問1分を守る「設問10秒先読み（選択肢は見ない）」</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            本文を読む前に<strong>設問文だけを10秒以内</strong>で確認します。このとき<strong>選択肢(A)〜(D)は絶対に読まない</strong>のが鉄則（3つの不正解選択肢が脳にノイズとして残り、本文を誤読するため）。固有名詞や問われるテーマ（縦看板）だけ頭に置いて本文を1回で読み切ります。
+          </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-violet-600 uppercase">Method 05 • 猛牛ちゃんねる・スタサプ推奨</div>
+          <h3 class="font-bold text-base">🪜 「辞書なしで9割わかる素材」から段階的に速度引き上げ</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            TOEIC本番の難解な長文ばかりで速読練習をすると、返り読み癖が治りません。まずは<strong>「ゆっくりなら余裕で100%わかる易しい英文（英検3級〜準2級・短めメール）」を150 WPMで前からスラスラ処理する回路</strong>を作り、4週間かけて本番難度へ引き上げます。
+          </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div class="text-xs font-extrabold text-cyan-600 uppercase">Method 06 • 音読＆音声ペースメーカー</div>
+          <h3 class="font-bold text-base">🎧 150 WPMのネイティブ音声で強制ペースメイク</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            人間は黙読だけだと無意識に目が止まり、返り読みしてしまいます。解き終わったパッセージは必ず<strong>音声読み上げ（1.0x〜1.2x）を流しながら、音声と同じスピードでチャンクの意味を頭に浮かべる「サイトトランスレーション音読」</strong>を3回繰り返しましょう。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 5: CUSTOM TEXT LAB & MY VOCAB BOOK
+         ========================================== -->
+    <section id="tab-custom" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Custom Passage Importer -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">無限練習ジェネレーター</span>
+            <h2 class="text-lg font-extrabold mt-1">🛠️ カスタム英文スピードトレーナー（自動スラッシュ分割）</h2>
+            <p class="text-xs text-slate-500">お手持ちのTOEIC問題集の英文、英字ニュース、仕事の英語メールを貼り付けると、自動でチャンク分割（スラッシュ挿入）し、高速トレーナーのすべてのモード（イレイサー・RSVP・音声読み上げ・WPM計測）で練習できます！</p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label for="customTitleInput" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">タイトル</label>
+              <input id="customTitleInput" type="text" value="My Custom TOEIC Practice Passage" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label for="customTextInput" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">英文テキスト（貼り付け）</label>
+              <textarea id="customTextInput" rows="6" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-3 text-sm english-text" placeholder="Paste any English passage here...">Dear All Staff,
+Please be advised that the main parking lot behind Building B will be closed for repaving from Monday, November 2 through Wednesday, November 4. During this period, employees are encouraged to use the temporary shuttle service from Oak Street Station or park in the overflow lot on West Avenue. Thank you for your cooperation as we improve our facilities.</textarea>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="loadCustomPassageBtn" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-sm">
+                ⚡ 自動スラッシュ分割して「高速読解トレーナー」で練習する
+              </button>
+              <span id="customStatsPreview" class="text-xs text-slate-500 font-mono"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Saved Vocab Book -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-base sm:text-lg font-extrabold">📌 My ブックマーク単語帳</h2>
+                <p class="text-xs text-slate-500">長文演習や1秒ブリッツで保存した重要語彙リスト</p>
+              </div>
+              <button type="button" id="exportVocabBtn" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold">
+                📋 リストをコピー
+              </button>
+            </div>
+
+            <!-- Add custom vocab -->
+            <div class="flex gap-1.5">
+              <input id="newVocabEn" type="text" placeholder="英単語 (例: expedite)" class="w-1/2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs" />
+              <input id="newVocabJp" type="text" placeholder="意味 (例: 促進する・早める)" class="w-1/2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs" />
+              <button type="button" id="addCustomVocabBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold shrink-0">追加</button>
+            </div>
+
+            <div id="savedVocabContainer" class="space-y-1.5 max-h-72 overflow-y-auto custom-scrollbar pr-1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. DATASET: 10 Rich TOEIC Part 7 Passages (Week 1 to Week 4 Progression)
+    // =========================================================================
+    const PASSAGES = [
+      {
+        id: 'p1',
+        week: 1,
+        level: 'Lv.1 リハビリ短文 (110 WPM目標)',
+        type: '社内連絡メール (Email)',
+        title: 'Week 1-A: オフィス複合機の入れ替え案内',
+        hint: '送信者（総務部）から全社員への連絡。「いつ（Friday, May 14）」「何が起きるか（古いコピー機の撤去と新型導入）」「条件（午前中は2階の機械を使うこと）」を前から順番に繋ぎましょう。',
+        chunks: [
+          { en: 'To: All Staff <staff@crestviewcorp.com>', jp: '宛先：全社員', role: 'person' },
+          { en: 'From: Facilities Team <facilities@crestviewcorp.com>', jp: '差出人：施設管理チーム（同ドメイン＝社内連絡）', role: 'person' },
+          { en: 'Date: Wednesday, May 12', jp: '日付：5月12日（水）', role: 'time' },
+          { en: 'Subject: Printer Upgrade on Third Floor', jp: '件名：3階プリンターのアップグレード', role: 'o' },
+          { en: 'Please note that', jp: '〜にご留意ください', role: 'v' },
+          { en: 'the main copy machine on the third floor', jp: '3階のメインコピー機は', role: 's' },
+          { en: 'will be replaced', jp: '交換される予定です', role: 'v' },
+          { en: 'this Friday, May 14,', jp: '今週金曜の5月14日に（5/12の2日後）', role: 'time' },
+          { en: 'between 9:00 A.M. and noon.', jp: '午前9時から正午の間に。', role: 'time' },
+          { en: 'During the installation,', jp: '設置作業の間は、', role: 'fat' },
+          { en: 'employees who need to print urgent documents', jp: '緊急の書類を印刷する必要がある社員は', role: 's' },
+          { en: 'should use the backup printer', jp: '予備プリンターを使用してください', role: 'v' },
+          { en: 'located near the second-floor lounge.', jp: '2階ラウンジ近くにある。', role: 'fat' },
+          { en: 'The new model features', jp: '新しいモデルは備えています', role: 'v' },
+          { en: 'faster double-sided scanning', jp: 'より高速な両面スキャン機能を', role: 'o' },
+          { en: 'and automatic stapling.', jp: 'そして自動ホチキス留め機能を。', role: 'o' },
+          { en: 'A brief user guide', jp: '簡単な操作ガイドが', role: 's' },
+          { en: 'will be placed next to the machine', jp: '機器の横に置かれます', role: 'v' },
+          { en: 'once the setup is complete.', jp: 'もしセットアップが完了したら。', role: 'cond' }
+        ],
+        vocab: [
+          { en: 'replace', jp: '交換する・取り替える' },
+          { en: 'installation', jp: '設置・導入' },
+          { en: 'urgent', jp: '緊急の' },
+          { en: 'feature', jp: '（特徴として）備えている' },
+          { en: 'once', jp: '〜したらすぐに（条件・時）' }
+        ],
+        fullTranslation: '【全訳】3階のメインコピー機は、今週金曜（5月14日）の午前9時から正午の間に交換されます。設置作業中、緊急の書類を印刷する必要がある社員は、2階ラウンジ近くにある予備プリンターをご利用ください。新型モデルは高速両面スキャンと自動ホチキス機能を備えています。セットアップ完了後、機器の横に簡単な操作ガイドを配置します。',
+        questions: [
+          {
+            q: '1. What is the main purpose of the e-mail?',
+            choices: [
+              '(A) To request budget approval for new office furniture',
+              '(B) To inform employees about a temporary equipment disruption',
+              '(C) To announce the relocation of the second-floor lounge',
+              '(D) To invite staff to a software training workshop'
+            ],
+            answer: 1,
+            explanation: '冒頭の「Please note that the main copy machine ... will be replaced（コピー機が交換されるため一時使えなくなる）」から、(B)「機器の一時的な利用中断を社員に知らせるため」が正解です。'
+          },
+          {
+            q: '2. What are employees advised to do on Friday morning?',
+            choices: [
+              '(A) Work from home until noon',
+              '(B) Contact the technician directly',
+              '(C) Use a machine on another floor',
+              '(D) Read the manual before Friday'
+            ],
+            answer: 2,
+            explanation: '金曜午前（9:00 A.M.〜noon）の作業中は「use the backup printer located near the second-floor lounge（2階の予備プリンターを使う）」よう案内されており、「another floor（別の階）」に言い換えられています。'
+          }
+        ]
+      },
+      {
+        id: 'p2',
+        week: 1,
+        level: 'Lv.1 リハビリ短文 (120 WPM目標)',
+        type: 'テキストメッセージ (Chat)',
+        title: 'Week 1-B: クライアント到着遅れに関するチャット',
+        hint: 'チャット問題では「発言者の立場」と「時刻の推移」を掴みます。"Wait for me in the lobby" など口語表現をそのままイメージ化しましょう。',
+        chunks: [
+          { en: 'Kenji Sato (10:15 A.M.):', jp: '佐藤健司 (10:15):', role: 'person' },
+          { en: 'Hi Elena,', jp: 'こんにちはエレナ、', role: 'fat' },
+          { en: 'I just received a call', jp: 'ちょうど電話を受けました', role: 'v' },
+          { en: 'from Mr. Morales at Apex Logistics.', jp: 'Apex社のモラレス氏から。', role: 'person' },
+          { en: 'His train was delayed', jp: '彼の電車が遅れました', role: 'v' },
+          { en: 'due to signal trouble,', jp: '信号トラブルが原因で、', role: 'fat' },
+          { en: 'so he will arrive at our office', jp: 'そのため彼は弊社オフィスに到着します', role: 'v' },
+          { en: 'around 11:00 A.M. instead of 10:30 A.M.', jp: '10時半ではなく11時頃に。', role: 'time' },
+          { en: 'Elena Rostova (10:17 A.M.):', jp: 'エレナ・ロストヴァ (10:17):', role: 'person' },
+          { en: 'Thanks for letting me know.', jp: '知らせてくれてありがとう。', role: 'v' },
+          { en: 'In that case,', jp: 'それなら（その場合）、', role: 'cond' },
+          { en: 'I will ask the catering staff', jp: 'ケータリング担当者に頼みます', role: 'v' },
+          { en: 'to bring the coffee and pastries', jp: 'コーヒーとペストリーを持ってくるよう', role: 'o' },
+          { en: 'to Conference Room B at 10:50 A.M.', jp: '会議室Bへ10時50分に。', role: 'time' },
+          { en: 'Kenji Sato (10:18 A.M.):', jp: '佐藤健司 (10:18):', role: 'person' },
+          { en: 'Good idea.', jp: 'いい考えだね。', role: 'c' },
+          { en: 'I will print the updated price list now', jp: '今から最新の価格表を印刷して', role: 'v' },
+          { en: 'and meet you in the lobby at 10:55 A.M.', jp: '10時55分にロビーで合流します。', role: 'time' }
+        ],
+        vocab: [
+          { en: 'due to', jp: '〜が原因で（＝because of）' },
+          { en: 'instead of', jp: '〜の代わりに' },
+          { en: 'in that case', jp: 'その場合は' },
+          { en: 'catering', jp: 'ケータリング・飲食手配' },
+          { en: 'updated', jp: '最新の・更新された' }
+        ],
+        fullTranslation: '【全訳】健司(10:15): エレナ、今Apex社のモラレス氏から電話がありました。信号トラブルで電車が遅れており、10時半ではなく11時頃に弊社へ到着するそうです。\nエレナ(10:17): 連絡ありがとう。それなら、ケータリング担当にコーヒーと軽食を10時50分に会議室Bへ届けるよう頼んでおきます。\n健司(10:18): いいね。私は今から最新の価格表を印刷して、10時55分にロビーで合流します。',
+        questions: [
+          {
+            q: '1. Why will Mr. Morales arrive later than scheduled?',
+            choices: [
+              '(A) His flight was canceled due to weather.',
+              '(B) Public transportation experienced a problem.',
+              '(C) He went to the wrong office building.',
+              '(D) His previous meeting ran over time.'
+            ],
+            answer: 1,
+            explanation: '本文の「His train was delayed due to signal trouble（信号トラブルで電車が遅れた）」が、(B)「Public transportation experienced a problem（公共交通機関に問題が生じた）」に言い換えられています。'
+          },
+          {
+            q: '2. What will Mr. Sato do before going to the lobby?',
+            choices: [
+              '(A) Order coffee and pastries',
+              '(B) Call Mr. Morales back',
+              '(C) Prepare some printed documents',
+              '(D) Reserve Conference Room B'
+            ],
+            answer: 2,
+            explanation: '最後の健司の発言「I will print the updated price list now and meet you in the lobby」より、(C)「印刷書類を用意する」が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p3',
+        week: 2,
+        level: 'Lv.2 情報連結＆時系列 (135 WPM目標)',
+        type: 'カスタマーサービス返信 (Email)',
+        title: 'Week 2-A: 商品交換の遅延お詫びと発送時期（時系列リンク特訓）',
+        hint: 'YouTube講義（メディアビーコン山田氏）の実践パターン！送信日「April 17（4月）」を基準に、本文中の「last month（＝3月）」「next week（＝4月下旬）」「beginning of next month（＝5月初旬）」を頭の中で具体的な月に変換しながら読みましょう。',
+        chunks: [
+          { en: 'To: Isabella Vance <ivance@greenmail.org>', jp: '宛先：イザベラ・ヴァンス様（顧客）', role: 'person' },
+          { en: 'From: Customer Support <support@nordicgear.com>', jp: '差出人：カスタマーサポート（店舗側）', role: 'person' },
+          { en: 'Date: April 17', jp: '日付：4月17日（※ここが時系列の基準点！）', role: 'time' },
+          { en: 'Subject: Order #40829', jp: '件名：注文番号 #40829', role: 'o' },
+          { en: 'Dear Ms. Vance,', jp: 'ヴァンス様、', role: 'person' },
+          { en: 'We sincerely apologize', jp: '私たちは心よりお詫び申し上げます', role: 'v' },
+          { en: 'for the delay in exchanging your product.', jp: 'あなたの商品を交換する手続きの遅れについて。', role: 'o' },
+          { en: 'Although you purchased the item', jp: 'あなたは商品を購入されましたが', role: 'v' },
+          { en: 'at the beginning of last month,', jp: '先月の初めに（＝3月初旬！）、', role: 'time' },
+          { en: 'the one-year warranty is still valid', jp: '1年間の保証はまだ有効であり', role: 'c' },
+          { en: 'and your item can be exchanged for free.', jp: '商品は無料で交換可能です。', role: 'cond' },
+          { en: 'The item you ordered,', jp: 'あなたが注文された商品、すなわち', role: 's' },
+          { en: 'the Alpine Thermal Jacket,', jp: 'アルパイン・サーマルジャケットは、', role: 's' },
+          { en: 'was a seasonal sale item.', jp: '季節のセール品でした。', role: 'c' },
+          { en: 'Therefore, our warehouse stock was limited', jp: 'そのため、倉庫の在庫が限られており', role: 'c' },
+          { en: 'and we could not send a replacement immediately.', jp: '代替品をすぐにお送りすることができませんでした。', role: 'v' },
+          { en: 'However, we have just received a new shipment', jp: 'しかしながら、ちょうど新入荷分を受け取りましたので', role: 'v' },
+          { en: 'and will dispatch your jacket next week.', jp: '来週（＝4月下旬）ジャケットを発送いたします。', role: 'time' },
+          { en: 'It will be delivered to your address', jp: 'それはご住所へ届けられる予定です', role: 'v' },
+          { en: 'at the beginning of next month.', jp: '来月の初めに（＝5月初旬！）。', role: 'time' }
+        ],
+        vocab: [
+          { en: 'sincerely apologize', jp: '心よりお詫びする' },
+          { en: 'warranty', jp: '保証（期間）' },
+          { en: 'valid', jp: '有効な' },
+          { en: 'replacement', jp: '代替品・交換品' },
+          { en: 'dispatch', jp: '発送する・派遣する' }
+        ],
+        fullTranslation: '【全訳】ヴァンス様、商品の交換が遅れておりますことを心よりお詫び申し上げます。先月初め（3月初旬）にご購入いただきましたが、1年保証は有効ですので無料で交換可能です。ご注文品のアルパイン・サーマルジャケットはセール品だったため在庫が限られており、直ちに代替品を発送できませんでした。しかし新入荷分が到着しましたので、来週（4月下旬）発送いたします。来月初め（5月初旬）にお手元に届く予定です。',
+        questions: [
+          {
+            q: '1. When did Ms. Vance originally buy the jacket?',
+            choices: [
+              '(A) In February',
+              '(B) In March',
+              '(C) In April',
+              '(D) In May'
+            ],
+            answer: 1,
+            explanation: 'メール送信日が「April 17（4月17日）」で、本文に「purchased the item at the beginning of last month（先月初めに購入）」とあるため、4月の先月＝(B) In March（3月）が正解です。'
+          },
+          {
+            q: '2. When will Ms. Vance most likely receive the replacement item?',
+            choices: [
+              '(A) In mid-April',
+              '(B) At the end of April',
+              '(C) In early May',
+              '(D) In early June'
+            ],
+            answer: 2,
+            explanation: '発送（dispatch）は「next week（4月下旬）」ですが、配達完了（delivered）は最終文の「at the beginning of next month（4月の来月初め＝5月初旬）」なので、(C) In early May が正解です。'
+          },
+          {
+            q: '3. Why was there a delay in sending the new jacket?',
+            choices: [
+              '(A) Ms. Vance’s warranty had expired.',
+              '(B) The shipping address was incomplete.',
+              '(C) The product was temporarily out of stock.',
+              '(D) The payment had not been processed.'
+            ],
+            answer: 2,
+            explanation: '「our warehouse stock was limited and we could not send a replacement immediately」より、(C)「一時的に在庫がなかったため」が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p4',
+        week: 2,
+        level: 'Lv.2 スラッシュ＆骨格把握 (140 WPM目標)',
+        type: '地域イベント告知 (Notice)',
+        title: 'Week 2-B: 歴史的石鹸工場ツアーの開催案内（スラッシュ5原則特訓）',
+        hint: '主語が長い文（The Gold Park Cultural Revival Society）や関係代名詞（that failed when...）が登場します。後ろから戻らず、スラッシュごとに前から意味を積み上げましょう。',
+        chunks: [
+          { en: 'Branson Soap Factory Guided Tour', jp: 'ブランソン石鹸工場ガイド付きツアー', role: 's' },
+          { en: 'On Saturday, May 19,', jp: '5月19日（土）に、', role: 'time' },
+          { en: 'the Gold Park Cultural Revival Society', jp: 'ゴールドパーク文化再生協会は', role: 's' },
+          { en: 'is hosting a special guided tour', jp: '特別ガイドツアーを開催します', role: 'v' },
+          { en: 'of the historic Branson Soap Factory.', jp: '歴史的なブランソン石鹸工場の。', role: 'o' },
+          { en: 'The brick building,', jp: 'そのレンガ造りの建物は、', role: 's' },
+          { en: 'which was once one of the region’s largest employers,', jp: 'かつて地域最大の雇用主の一つでしたが、', role: 'fat' },
+          { en: 'has been vacant', jp: '空き家のままになっています', role: 'v' },
+          { en: 'for more than thirty years.', jp: '30年以上にわたって。', role: 'time' },
+          { en: 'It was one of several local businesses', jp: 'それはいくつかの地元企業の一つでした', role: 'c' },
+          { en: 'that closed', jp: '閉鎖してしまった（企業）', role: 'v' },
+          { en: 'when low-cost imported goods', jp: '安価な輸入品が〜した時に', role: 'cond' },
+          { en: 'attracted customers away in the 1990s.', jp: '1990年代に顧客を奪ってしまった（時に）。', role: 'v' },
+          { en: 'Our society is currently planning', jp: '当協会は現在計画しています', role: 'v' },
+          { en: 'to purchase the property', jp: 'その不動産（建物）を購入することを', role: 'o' },
+          { en: 'and convert it into a community craft museum.', jp: 'そして地域の工芸博物館へ改装することを。', role: 'o' },
+          { en: 'All proceeds raised from the tour tickets', jp: 'ツアーチケットから集められた全ての収益は', role: 's' },
+          { en: 'will be used to fund our renovation project', jp: '改修プロジェクトの資金として使われます', role: 'v' },
+          { en: 'and attract new supporting members.', jp: 'そして新しい賛助会員を惹きつけるために。', role: 'v' },
+          { en: 'Local business owners interested in sponsoring the revival', jp: '再生支援に関心のある地元経営者は', role: 's' },
+          { en: 'may contact our Corporate Relations Manager', jp: '渉外マネージャーへ連絡できます', role: 'v' },
+          { en: 'at 555-0189.', jp: '555-0189にて。', role: 'fat' }
+        ],
+        vocab: [
+          { en: 'host', jp: '主催する・開催する' },
+          { en: 'vacant', jp: '空いている・空き家の' },
+          { en: 'convert A into B', jp: 'AをBに改装・転換する' },
+          { en: 'proceeds', jp: '収益・売上金（※常に複数形）' },
+          { en: 'fund', jp: '〜に資金を提供する' }
+        ],
+        fullTranslation: '【全訳】5月19日（土）、ゴールドパーク文化再生協会は歴史あるブランソン石鹸工場の特別ガイドツアーを開催します。かつて地域最大の雇用主の一つだったこのレンガ建築は、30年以上空き家となっています。1990年代に安価な輸入品に顧客を奪われ閉鎖した地元企業の一つでした。当協会は現在、この建物を購入して地域工芸博物館へ改装する計画を進めており、ツアーの収益はすべて改修資金および新会員募集に充てられます。協賛に関心のある地元企業は渉外マネージャー（555-0189）までご連絡ください。',
+        questions: [
+          {
+            q: '1. What is stated about the Branson Soap Factory building?',
+            choices: [
+              '(A) It was constructed thirty years ago.',
+              '(B) It has been unoccupied for over three decades.',
+              '(C) It currently produces handmade soap.',
+              '(D) It is owned by an international import company.'
+            ],
+            answer: 1,
+            explanation: '本文の「has been vacant for more than thirty years（30年以上空き家になっている）」が、(B)「has been unoccupied for over three decades（30年以上使われていない）」へ鮮やかに言い換えられています（thirty years = three decades, vacant = unoccupied）。'
+          },
+          {
+            q: '2. How will the money from the ticket sales be used?',
+            choices: [
+              '(A) To import raw materials from abroad',
+              '(B) To pay for building improvements and outreach',
+              '(C) To compensate former factory employees',
+              '(D) To relocate the society’s headquarters'
+            ],
+            answer: 1,
+            explanation: '「All proceeds raised from the tour tickets will be used to fund our renovation project and attract new supporting members」より、(B)「建物の改修と広報・会員募集に使われる」が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p5',
+        week: 2,
+        level: 'Lv.2 条件＆例外規定 (145 WPM目標)',
+        type: '社内規定メモ (Memo)',
+        title: 'Week 2-C: 出張経費精算システムの改定と例外ルール',
+        hint: 'TOEICで超頻出の「条件（for purchases over $50 / unless / prior to）」に注目！数字と条件マーカーを素早くロックしましょう。',
+        chunks: [
+          { en: 'MEMORANDUM', jp: '社内メモ', role: 'fat' },
+          { en: 'To: All Sales Representatives', jp: '宛先：全営業担当者', role: 'person' },
+          { en: 'From: Accounting Department', jp: '差出人：経理部', role: 'person' },
+          { en: 'Date: October 1', jp: '日付：10月1日', role: 'time' },
+          { en: 'Subject: Updated Travel Reimbursement Policy', jp: '件名：出張経費精算ポリシーの改定', role: 'o' },
+          { en: 'Effective November 1,', jp: '11月1日発効（適用開始）にて、', role: 'time' },
+          { en: 'all business travel expense reports', jp: 'すべての出張経費精算レポートは', role: 's' },
+          { en: 'must be submitted digitally', jp: 'デジタル提出しなければなりません', role: 'v' },
+          { en: 'through the CloudExpense portal', jp: 'CloudExpenseポータルを通じて', role: 'fat' },
+          { en: 'within ten business days of returning from a trip.', jp: '出張から帰着後10営業日以内に。', role: 'cond' },
+          { en: 'Paper receipts are no longer accepted.', jp: '紙の領収書はもはや受理されません。', role: 'v' },
+          { en: 'Instead, please upload clear photographs', jp: '代わりに、鮮明な写真をアップロードしてください', role: 'v' },
+          { en: 'of itemized receipts', jp: '明細付きの領収書の（写真を）', role: 'o' },
+          { en: 'for any single expenditure exceeding $25.', jp: '1件あたり25ドルを超える支出については。', role: 'cond' },
+          { en: 'In addition, client entertainment meals', jp: 'さらに、クライアント接待の食事代で', role: 's' },
+          { en: 'costing more than $150', jp: '150ドルを超えるものは', role: 'cond' },
+          { en: 'require written pre-approval', jp: '書面による事前承認を必要とします', role: 'v' },
+          { en: 'from a regional director', jp: '地域ディレクターからの', role: 'person' },
+          { en: 'prior to the event.', jp: 'その会食よりも前に（事前に）。', role: 'time' }
+        ],
+        vocab: [
+          { en: 'effective [date]', jp: '［日付］より発効・適用で' },
+          { en: 'reimbursement', jp: '払い戻し・経費精算' },
+          { en: 'itemized receipt', jp: '内訳（明細）が記載された領収書' },
+          { en: 'exceeding', jp: '〜を超える（＝more than / over）' },
+          { en: 'prior to', jp: '〜より前に（＝before）' }
+        ],
+        fullTranslation: '【全訳】11月1日より、すべての出張経費精算は帰着後10営業日以内にCloudExpenseポータルからデジタル申請する必要があります。紙の領収書は廃止されます。代わりに、1件25ドルを超える支出については明細付き領収書の鮮明な写真をアップロードしてください。また、150ドルを超えるクライアント接待費は、会食前に地域ディレクターの書面による事前承認が必要です。',
+        questions: [
+          {
+            q: '1. What is required for a $40 taxi fare during a business trip?',
+            choices: [
+              '(A) Pre-approval from a regional director',
+              '(B) A paper receipt sent by interoffice mail',
+              '(C) A digital image of the detailed receipt',
+              '(D) Submission before the trip begins'
+            ],
+            answer: 2,
+            explanation: '40ドルのタクシー代は「exceeding $25（25ドル超）」の条件に該当するため、「upload clear photographs of itemized receipts（明細付き領収書のデジタル画像をアップロードする）」＝(C)が正解です。'
+          },
+          {
+            q: '2. When must employees obtain permission for an expensive client dinner?',
+            choices: [
+              '(A) Before the meal takes place',
+              '(B) Within ten business days after returning',
+              '(C) By October 1',
+              '(D) Only if the client requests an invoice'
+            ],
+            answer: 0,
+            explanation: '150ドル超の会食は「require written pre-approval ... prior to the event（会食より前に事前承認が必要）」とあるため、`prior to` ＝ `(A) Before` の言い換えで即答できます。'
+          }
+        ]
+      },
+      {
+        id: 'p6',
+        week: 3,
+        level: 'Lv.3 骨格SVOC＆贅肉スルー (150 WPM目標)',
+        type: 'ビジネス新聞記事 (Article)',
+        title: 'Week 3-A: 太陽光パネルメーカーのアジア工場新設記事',
+        hint: '新聞記事は所属や肩書き、副詞句などの「贅肉（修飾語）」が多く入ります。⑤骨格SVOCモードも活用し、主語(S)と動詞(V)の幹だけを高速で貫く練習をしましょう。',
+        chunks: [
+          { en: 'Helios Solar Announces New Manufacturing Plant in Vietnam', jp: 'ヘリオス・ソーラー社がベトナム新製造工場を発表', role: 's' },
+          { en: 'SINGAPORE ( August 8 ) —', jp: 'シンガポール（8月8日）—', role: 'time' },
+          { en: 'Helios Solar Technologies,', jp: 'ヘリオス・ソーラー・テクノロジーズ社は、', role: 's' },
+          { en: 'a leading producer of commercial photovoltaic panels,', jp: '（商業用太陽光パネルの大手メーカーである）[同格の贅肉]', role: 'fat' },
+          { en: 'announced yesterday', jp: '昨日発表しました（＝8月7日）', role: 'v' },
+          { en: 'that it will invest $120 million', jp: '1億2000万ドルを投資すると', role: 'o' },
+          { en: 'to construct a state-of-the-art manufacturing facility', jp: '最新鋭の製造施設を建設するために', role: 'fat' },
+          { en: 'in Da Nang, Vietnam.', jp: 'ベトナムのダナンに。', role: 'fat' },
+          { en: 'Construction is scheduled to begin in October,', jp: '建設は10月に開始される予定で、', role: 'time' },
+          { en: 'and full-scale production is expected to start', jp: '本格稼働は開始される見込みです', role: 'v' },
+          { en: 'by the third quarter of next year.', jp: '来年の第3四半期までに。', role: 'time' },
+          { en: 'According to Chief Operating Officer Marcus Chen,', jp: 'COOのマーカス・チェン氏によると、', role: 'person' },
+          { en: 'the new plant will roughly double', jp: '新工場はおよそ2倍にします', role: 'v' },
+          { en: 'the company’s annual output capacity', jp: '同社の年間生産能力を', role: 'o' },
+          { en: 'while significantly reducing shipping times', jp: '同時に輸送時間を大幅に短縮しつつ', role: 'fat' },
+          { en: 'to customers across Southeast Asia.', jp: '東南アジア全域の顧客への。', role: 'person' },
+          { en: 'Additionally, the company plans to hire', jp: 'さらに、同社は採用する計画です', role: 'v' },
+          { en: 'approximately 450 local engineers and technicians', jp: '約450名の現地エンジニアおよび技術者を', role: 'o' },
+          { en: 'over the next eighteen months.', jp: '今後18ヶ月間にわたって。', role: 'time' }
+        ],
+        vocab: [
+          { en: 'state-of-the-art', jp: '最新鋭の・最先端の' },
+          { en: 'facility', jp: '施設・工場・設備' },
+          { en: 'full-scale', jp: '本格的な・全面的な' },
+          { en: 'annual output capacity', jp: '年間生産能力' },
+          { en: 'approximately', jp: 'およそ・約（＝roughly / about）' }
+        ],
+        fullTranslation: '【全訳】シンガポール（8月8日）— 商業用太陽光パネル大手のヘリオス・ソーラー社は昨日、ベトナムのダナンに最新鋭の製造工場を建設するため1億2000万ドルを投資すると発表した。建設は10月に着工予定で、本格生産は来年第3四半期までに開始される見込みだ。マーカス・チェンCOOによると、新工場により同社の年間生産能力は約2倍になり、東南アジア全域の顧客への輸送時間も大幅に短縮される。さらに今後18ヶ月間で約450名の現地エンジニア・技術者を採用する計画だ。',
+        questions: [
+          {
+            q: '1. What is indicated about the Da Nang facility?',
+            choices: [
+              '(A) It is already operating at full capacity.',
+              '(B) It will begin construction in August.',
+              '(C) It will help deliver products faster to regional clients.',
+              '(D) It will replace the company’s headquarters in Singapore.'
+            ],
+            answer: 2,
+            explanation: 'チェンCOOの発言「while significantly reducing shipping times to customers across Southeast Asia（東南アジアの顧客への輸送時間を大幅短縮する）」が、(C)「地域の顧客へより速く製品を届けるのに役立つ」と一致します。'
+          },
+          {
+            q: '2. How many workers does Helios Solar expect to recruit in Vietnam?',
+            choices: [
+              '(A) About 120',
+              '(B) About 180',
+              '(C) About 300',
+              '(D) About 450'
+            ],
+            answer: 3,
+            explanation: '最終文の「hire approximately 450 local engineers and technicians」より、`hire` ＝ `recruit`、`approximately` ＝ `About` の言い換えで(D)が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p7',
+        week: 3,
+        level: 'Lv.3 設問先読みスキャニング (155 WPM目標)',
+        type: '求人広告 (Advertisement)',
+        title: 'Week 3-B: シニア・マーケティングアナリスト求人広告',
+        hint: '求人広告では「必須条件（must / required）」と「歓迎条件（preferred / a plus）」の区別が必ず問われます！',
+        chunks: [
+          { en: 'Position Available: Senior Marketing Analyst', jp: '募集職種：シニア・マーケティングアナリスト', role: 's' },
+          { en: 'Aurelia Consumer Goods is seeking', jp: 'オーレリア消費財は募集しています', role: 'v' },
+          { en: 'an experienced Senior Marketing Analyst', jp: '経験豊富なシニア・マーケティングアナリストを', role: 'o' },
+          { en: 'to join our rapidly growing e-commerce division', jp: '急成長中のEC部門に加わるための', role: 'fat' },
+          { en: 'at our Chicago headquarters.', jp: 'シカゴ本社にて。', role: 'fat' },
+          { en: 'Key Responsibilities:', jp: '主な職務内容：', role: 's' },
+          { en: '• Analyze consumer purchasing trends', jp: '・消費者の購買トレンドを分析し', role: 'v' },
+          { en: 'and evaluate the performance of digital ad campaigns.', jp: 'デジタル広告キャンペーンの成果を評価する。', role: 'v' },
+          { en: '• Collaborate with product development teams', jp: '・製品開発チームと連携する', role: 'v' },
+          { en: 'to launch seasonal promotions.', jp: '季節ごとのプロモーションを立ち上げるために。', role: 'fat' },
+          { en: 'Qualifications:', jp: '応募資格（条件）：', role: 'cond' },
+          { en: '• A bachelor’s degree in marketing, statistics, or economics', jp: '・マーケティング、統計学、または経済学の学士号が', role: 's' },
+          { en: 'is mandatory.', jp: '必須（mandatory）です。', role: 'cond' },
+          { en: '• At least four years of experience', jp: '・少なくとも4年以上の実務経験', role: 'cond' },
+          { en: 'in retail data analytics.', jp: '小売データ分析における。', role: 'fat' },
+          { en: '• Proficiency in SQL and Python', jp: '・SQLおよびPythonの習熟度は', role: 's' },
+          { en: 'is strongly preferred, though not strictly required.', jp: '強く歓迎されますが、厳密な必須ではありません。', role: 'cond' },
+          { en: 'To apply, please submit your resume and cover letter', jp: '応募するには、履歴書とカバーレターを提出してください', role: 'v' },
+          { en: 'via our careers page by November 15.', jp: '採用ページ経由で11月15日までに。', role: 'time' }
+        ],
+        vocab: [
+          { en: 'seek', jp: '募集する・探す（＝look for）' },
+          { en: 'evaluate', jp: '評価する・査定する' },
+          { en: 'mandatory', jp: '必須の（＝required）' },
+          { en: 'proficiency', jp: '習熟・堪能さ' },
+          { en: 'preferred', jp: '歓迎される・望ましい（※必須ではない！）' }
+        ],
+        fullTranslation: '【全訳】オーレリア消費財は、シカゴ本社の急成長中のEC部門にてシニア・マーケティングアナリストを募集しています。【職務】購買トレンドの分析とデジタル広告の評価、製品開発チームと連携した季節プロモーションの立ち上げ。【資格】マーケティング・統計学・経済学のいずれかの学士号が必須。小売データ分析の経験4年以上。SQLとPythonのスキルは強く歓迎されますが必須ではありません。応募は11月15日までに採用ページから履歴書とカバーレターを提出してください。',
+        questions: [
+          {
+            q: '1. Which qualification is strictly required for applicants?',
+            choices: [
+              '(A) A master’s degree in business administration',
+              '(B) Advanced programming skills in Python',
+              '(C) A minimum of four years in retail data analysis',
+              '(D) Prior experience working in Chicago'
+            ],
+            answer: 2,
+            explanation: 'Pythonは「strongly preferred, though not strictly required（歓迎だが必須ではない）」という典型的なひっかけ選択肢です！必須なのは学士号と「At least four years of experience in retail data analytics」＝(C)です。'
+          },
+          {
+            q: '2. What will the successful candidate do in this role?',
+            choices: [
+              '(A) Interview job applicants for the IT division',
+              '(B) Assess the effectiveness of online advertising',
+              '(C) Manage warehouse inventory in Chicago',
+              '(D) Design packaging for new consumer goods'
+            ],
+            answer: 1,
+            explanation: '職務内容の「evaluate the performance of digital ad campaigns」が、(B)「Assess the effectiveness of online advertising（オンライン広告の効果を評価する）」に言い換えられています。'
+          }
+        ]
+      },
+      {
+        id: 'p8',
+        week: 3,
+        level: 'Lv.3 意図推測＆詳細照合 (160 WPM目標)',
+        type: '顧客レビュー (Customer Review)',
+        title: 'Week 3-C: ワイヤレスイヤホン購入者のオンラインレビュー',
+        hint: '星評価レビューでは「気に入った点（Pros）」と「不満点・改善要望（Cons / However以降）」の対比を掴めば1回読みで即答できます！',
+        chunks: [
+          { en: 'Customer Review: AeroSound Pro Wireless Earbuds', jp: '顧客レビュー：AeroSound Pro ワイヤレスイヤホン', role: 's' },
+          { en: 'Posted by: David Lindqvist on July 22 | Rating: ★★★★☆ (4/5)', jp: '投稿者：デイビッド・リンドクヴィスト（7月22日）', role: 'person' },
+          { en: 'As someone who commutes two hours by train every day,', jp: '毎日電車で2時間通勤する人間として、', role: 'person' },
+          { en: 'I have tried numerous noise-canceling earbuds', jp: '私は数々のノイズキャンセリングイヤホンを試してきました', role: 'v' },
+          { en: 'over the past few years.', jp: 'ここ数年間で。', role: 'time' },
+          { en: 'I bought the AeroSound Pro three weeks ago,', jp: '3週間前にAeroSound Proを購入しましたが、', role: 'time' },
+          { en: 'and I am thoroughly impressed', jp: '私はすっかり感銘を受けています', role: 'c' },
+          { en: 'by its acoustic clarity and active noise cancellation.', jp: 'その音響のクリアさとノイズキャンセリング性能に。', role: 'fat' },
+          { en: 'Even on a crowded subway,', jp: '混雑した地下鉄の中でさえ、', role: 'fat' },
+          { en: 'I can listen to podcasts at a low volume.', jp: '低い音量でポッドキャストを聴くことができます。', role: 'v' },
+          { en: 'The battery also lasts a full nine hours', jp: 'バッテリーもたっぷり9時間持ちます', role: 'v' },
+          { en: 'on a single charge, just as advertised.', jp: '1回の充電で、広告通りに。', role: 'fat' },
+          { en: 'My only complaint is the charging case.', jp: '私の唯一の不満は充電ケースです。', role: 'c' },
+          { en: 'Compared to previous models,', jp: '以前のモデルと比較すると、', role: 'fat' },
+          { en: 'the plastic lid feels somewhat fragile,', jp: 'プラスチックの蓋がやや壊れやすそうに感じられ、', role: 'c' },
+          { en: 'and the case is slightly too bulky', jp: 'ケースが少しばかりかさばりすぎます', role: 'c' },
+          { en: 'to fit comfortably in a shirt pocket.', jp: 'シャツのポケットに快適に入れるには。', role: 'fat' }
+        ],
+        vocab: [
+          { en: 'commute', jp: '通勤・通学する' },
+          { en: 'numerous', jp: '数多くの（＝many）' },
+          { en: 'thoroughly impressed', jp: 'すっかり感銘を受けた' },
+          { en: 'complaint', jp: '不満・苦情' },
+          { en: 'fragile / bulky', jp: '壊れやすい ／ かさばる' }
+        ],
+        fullTranslation: '【全訳】毎日電車で2時間通勤する者として、ここ数年多くのノイズキャンセリングイヤホンを試してきました。3週間前にAeroSound Proを購入しましたが、その音のクリアさと消音性能には大満足です。混雑した地下鉄でも小音量でポッドキャストが聴けます。バッテリーも広告通り1回の充電で9時間持ちます。唯一の不満は充電ケースです。旧モデルに比べプラスチックの蓋がやや脆そうで、シャツのポケットに入れるには少し大きすぎます。',
+        questions: [
+          {
+            q: '1. What does Mr. Lindqvist like about the AeroSound Pro?',
+            choices: [
+              '(A) Its compact charging case',
+              '(B) Its affordable price',
+              '(C) Its long-lasting battery life',
+              '(D) Its waterproof metal lid'
+            ],
+            answer: 2,
+            explanation: '好意的に評価しているのは音質・消音性能と「The battery also lasts a full nine hours on a single charge」＝(C)バッテリーの持ちの良さです。'
+          },
+          {
+            q: '2. What is Mr. Lindqvist’s criticism of the product?',
+            choices: [
+              '(A) The noise cancellation fails on subways.',
+              '(B) The container is larger and less sturdy than expected.',
+              '(C) The battery takes too long to recharge.',
+              '(D) The earbuds fall out while running.'
+            ],
+            answer: 1,
+            explanation: '「My only complaint is the charging case... feels somewhat fragile（脆い＝less sturdy）, and the case is slightly too bulky（かさばる＝larger）」より、(B)が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p9',
+        week: 4,
+        level: 'Lv.4 ダブルパッセージ統合 (165 WPM目標)',
+        type: 'ダブルパッセージ (Email + Rate Table)',
+        title: 'Week 4-A: カンファレンス会場予約メール＋会場料金・収容人数表',
+        hint: 'ダブルパッセージの核心は「2つの文書の共通キー（人数75名・火曜開催・AV機器手配）」を繋ぐクロスリファレンス！1文書目の条件（75 attendees）を持って2文書目の表をスキャンしましょう。',
+        chunks: [
+          { en: '[Document 1: E-mail] To: events@harborviewhotel.com | From: m.keller@biovant.com', jp: '【文書1：メール】宛先：ハーバービューホテル / 差出人：ケラー', role: 'person' },
+          { en: 'Date: September 10 | Subject: Seminar Room Inquiry', jp: '日付：9月10日 / 件名：セミナールームの問い合わせ', role: 'time' },
+          { en: 'Hello, I would like to book a banquet room', jp: 'こんにちは、私は宴会場（会議室）を予約したいです', role: 'v' },
+          { en: 'at the Harborview Hotel on Tuesday, October 20,', jp: 'ハーバービューホテルにて10月20日（火）に、', role: 'time' },
+          { en: 'for our annual Pharmaceutical Innovation Seminar.', jp: '年次製薬イノベーションセミナーのために。', role: 'fat' },
+          { en: 'We expect 75 attendees in total,', jp: '私たちは合計75名の出席者を予定しており（※重要条件①！）、', role: 'cond' },
+          { en: 'so we need the most economical room', jp: 'そのため最も経済的な（安い）部屋が必要です（※重要条件②！）', role: 'o' },
+          { en: 'that can comfortably accommodate our group.', jp: '私たちのグループ（75名）を収容できる（部屋）。', role: 'cond' },
+          { en: 'We will also add the standard audiovisual package.', jp: 'また、標準AV機器パッケージも追加します。', role: 'o' },
+          { en: 'Please let me know the total cost', jp: '合計費用をお知らせください', role: 'v' },
+          { en: 'including the weekday corporate discount.', jp: '平日法人割引を含めた（費用を）。', role: 'cond' },
+          { en: '--- [Document 2: Harborview Hotel Room Rates] ---', jp: '--- 【文書2：ハーバービューホテル会議室料金表】 ---', role: 's' },
+          { en: '• Bayside Room: Max Capacity 50 | Full Day Rate: $600', jp: '・ベイサイド室：最大50名（×75名入らない！）｜終日600ドル', role: 'cond' },
+          { en: '• Coral Hall: Max Capacity 90 | Full Day Rate: $900', jp: '・コーラルホール：最大90名（◎75名OKで最安！）｜終日900ドル', role: 'cond' },
+          { en: '• Grand Ballroom: Max Capacity 250 | Full Day Rate: $1,800', jp: '・グランドボールルーム：最大250名｜終日1,800ドル', role: 'cond' },
+          { en: '*Note 1: Standard Audiovisual Package (Projector + 2 Mics) is $150 extra.', jp: '※注1：標準AVパッケージは追加150ドル。', role: 'cond' },
+          { en: '*Note 2: Events held Monday through Thursday receive a 10% discount on the room rate.', jp: '※注2：月〜木曜開催のイベントは室料が10%割引（火曜開催なので適用！）。', role: 'cond' }
+        ],
+        vocab: [
+          { en: 'banquet / seminar room', jp: '宴会場・会議室' },
+          { en: 'attendee', jp: '出席者・参加者（＝participant）' },
+          { en: 'economical', jp: '経済的な・ 비용が安い' },
+          { en: 'accommodate', jp: '（人数を）収容する・対応する' },
+          { en: 'audiovisual (AV)', jp: '視聴覚の（プロジェクター・マイク等）' }
+        ],
+        fullTranslation: '【全訳】［文書1］10月20日（火）に年次セミナーのため会場を予約したいです。合計75名の参加を見込んでいるため、当グループを収容できる最も安い部屋を希望します。標準AVパッケージも追加します。平日割引を含めた費用を教えてください。\n［文書2］・Bayside Room（最大50名/$600）・Coral Hall（最大90名/$900）・Grand Ballroom（最大250名/$1,800） ※注1：標準AVパッケージは+$150 ※注2：月〜木曜開催は室料10%オフ。',
+        questions: [
+          {
+            q: '1. Which room will Ms. Keller most likely reserve?',
+            choices: [
+              '(A) Bayside Room',
+              '(B) Coral Hall',
+              '(C) Grand Ballroom',
+              '(D) Executive Lounge'
+            ],
+            answer: 1,
+            explanation: '文書1の条件「75 attendees（75名）」＋「most economical room（最安の部屋）」を文書2の表と照合します。Bayside Roomは最大50名で不可。75名を収容できる中で最安なのは最大90名の(B) Coral Hall ($900)です！'
+          },
+          {
+            q: '2. Why does Ms. Keller qualify for a discount?',
+            choices: [
+              '(A) She is booking more than one room.',
+              '(B) She is paying the full fee in advance.',
+              '(C) Her event takes place on a Tuesday.',
+              '(D) Her company declined the audiovisual package.'
+            ],
+            answer: 2,
+            explanation: '文書1で「Tuesday, October 20」に開催とあり、文書2の注2に「Events held Monday through Thursday receive a 10% discount」とあるため、(C)「火曜日に開催されるから」が正解です。'
+          }
+        ]
+      },
+      {
+        id: 'p10',
+        week: 4,
+        level: 'Lv.4 トリプルパッセージ総仕上げ (175 WPM目標)',
+        type: 'トリプルパッセージ (Notice + Chat + Schedule)',
+        title: 'Week 4-B: 社内研修プログラム案内＋受講者チャット＋講師担当表',
+        hint: 'トリプルパッセージでも恐れる必要はありません！1文書あたり100語前後です。設問を10秒先読みし、「名前（Liam / Priya）」や「コース番号（LD-204）」をフックに3つの文書をパズルのように繋ぎましょう。',
+        chunks: [
+          { en: '[Doc 1: Training Announcement] Apex Leadership Workshops — November Session', jp: '【文書1：研修案内】11月期リーダーシップ研修', role: 's' },
+          { en: 'All newly promoted team leaders must complete', jp: '新任チームリーダーは全員修了しなければなりません', role: 'v' },
+          { en: 'one communication module before November 30.', jp: '11月30日までにコミュニケーション講座を1つ。', role: 'cond' },
+          { en: 'Participants who wish to switch their assigned date', jp: '割り当てられた日程の変更を希望する参加者は', role: 's' },
+          { en: 'must notify HR at least 48 hours prior to the session.', jp: 'セッションの48時間前までに人事部へ通知する必要があります。', role: 'cond' },
+          { en: '--- [Doc 2: Schedule] ---', jp: '--- 【文書2：スケジュール表】 ---', role: 's' },
+          { en: '• Nov 10 (Tue): Module A "Conflict Resolution" | Instructor: Dr. Hannah Brooks | Room 302', jp: '・11/10(火)：モジュールA「対立解決」｜ブルックス博士｜302号室', role: 'time' },
+          { en: '• Nov 17 (Tue): Module B "Cross-Cultural Teams" | Instructor: Mr. Kenji Takahashi | Room 405', jp: '・11/17(火)：モジュールB「異文化チーム」｜高橋氏｜405号室', role: 'time' },
+          { en: '• Nov 24 (Tue): Module C "Agile Feedback" | Instructor: Ms. Sofia Rossi | Online (Zoom)', jp: '・11/24(火)：モジュールC「アジャイルフィードバック」｜ロッシ氏｜オンライン', role: 'time' },
+          { en: '--- [Doc 3: Instant Message] ---', jp: '--- 【文書3：社内チャット】 ---', role: 's' },
+          { en: 'Liam O’Connor (Nov 5): Hi Priya, I was originally signed up for the November 17 workshop,', jp: 'リアム(11/5)：プリヤ、私は当初11月17日の研修に登録していましたが、', role: 'person' },
+          { en: 'but I have to fly to Boston that week.', jp: 'その週はボストンへ出張しなければならなくなりました。', role: 'v' },
+          { en: 'I just e-mailed HR to move to the online session on November 24 instead.', jp: '代わりに11月24日のオンライン回へ変更するよう人事部にメールしました。', role: 'time' },
+          { en: 'Priya Patel (Nov 5): Good timing! Since today is November 5,', jp: 'プリヤ(11/5)：いいタイミングね！今日は11月5日だから、', role: 'time' },
+          { en: 'you easily met the deadline for changing sessions.', jp: '日程変更の期限（48時間前）も余裕でクリアしているわね。', role: 'c' }
+        ],
+        vocab: [
+          { en: 'newly promoted', jp: '新しく昇進した・新任の' },
+          { en: 'assigned date', jp: '割り当てられた日程' },
+          { en: 'notify', jp: '通知する・知らせる（＝inform）' },
+          { en: 'conflict resolution', jp: '対立解消・紛争解決' },
+          { en: 'meet the deadline', jp: '締め切りに間に合う' }
+        ],
+        fullTranslation: '【全訳】［文書1］新任リーダーは11月30日までに講座を1つ修了すること。日程変更は48時間前までに人事部へ連絡必須。\n［文書2］11/10：モジュールA（ブルックス博士/302号室）、11/17：モジュールB（高橋氏/405号室）、11/24：モジュールC（ロッシ氏/オンライン）。\n［文書3］リアム(11/5)：当初11月17日の回に登録していたけど、その週ボストン出張になったので11月24日のオンライン回へ変更メールを人事に出したよ。 プリヤ：今日11/5だから期限にも余裕で間に合ったわね！',
+        questions: [
+          {
+            q: '1. Which instructor’s workshop was Mr. O’Connor originally scheduled to attend?',
+            choices: [
+              '(A) Dr. Hannah Brooks',
+              '(B) Mr. Kenji Takahashi',
+              '(C) Ms. Sofia Rossi',
+              '(D) Ms. Priya Patel'
+            ],
+            answer: 1,
+            explanation: '文書3でリアムが「originally signed up for the November 17 workshop（当初11月17日の回に登録していた）」と述べ、文書2の表でNov 17の講師を見ると(B) Mr. Kenji Takahashi と判明します！典型的な文書間リンク問題です。'
+          },
+          {
+            q: '2. Which workshop will Mr. O’Connor now take?',
+            choices: [
+              '(A) Conflict Resolution',
+              '(B) Cross-Cultural Teams',
+              '(C) Agile Feedback',
+              '(D) Boston Executive Seminar'
+            ],
+            answer: 2,
+            explanation: '文書3で「move to the online session on November 24 instead」とあり、文書2のNov 24の講座名は(C) Agile Feedback です。'
+          },
+          {
+            q: '3. According to the announcement, what is required of all new team leaders?',
+            choices: [
+              '(A) Travelling to the Boston branch',
+              '(B) Completing all three modules in November',
+              '(C) Taking one training course before the end of November',
+              '(D) Submitting a report 48 hours after the workshop'
+            ],
+            answer: 2,
+            explanation: '文書1の「must complete one communication module before November 30」＝(C)が正解です。'
+          }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. DATASET: 1-Second Vocab & Paraphrase Blitz Items
+    // =========================================================================
+    const BLITZ_ITEMS = [
+      { cat: 'vocab', prompt: 'complimentary', ex: 'Enjoy a complimentary continental breakfast.', choices: ['無料の (free)', '必須の (required)', '一時的な (temporary)', '機密の (confidential)'], ans: 0, note: 'Part 7超頻出！complimentary = free of charge' },
+      { cat: 'vocab', prompt: 'mandatory', ex: 'Attendance at the safety briefing is mandatory.', choices: ['任意の', '必須の・義務的な', '延期された', '無料の'], ans: 1, note: 'mandatory = required / compulsory' },
+      { cat: 'vocab', prompt: 'reimburse', ex: 'The company will reimburse your travel expenses.', choices: ['予約する', '解雇する', '払い戻す・精算する', '検査する'], ans: 2, note: 'reimburse = pay back money spent' },
+      { cat: 'vocab', prompt: 'accommodate', ex: 'The hall can accommodate up to 120 guests.', choices: ['収容する・対応する', 'キャンセルする', '宣伝する', '輸出する'], ans: 0, note: 'ホテル・会議室問題で毎回出る必須動詞！' },
+      { cat: 'vocab', prompt: 'inquire', ex: 'I am writing to inquire about your catering rates.', choices: ['謝罪する', '問い合わせる・尋ねる', '支払う', '応募する'], ans: 1, note: 'inquire about = ask for information about' },
+      { cat: 'vocab', prompt: 'expedite', ex: 'We will expedite your shipment at no extra charge.', choices: ['促進する・早める', '返品する', '保管する', '割引する'], ans: 0, note: 'expedite = speed up / make faster' },
+      { cat: 'vocab', prompt: 'vacant', ex: 'The corner store has been vacant since March.', choices: ['混雑した', '空き家の・空いている', '改装中の', '高価な'], ans: 1, note: 'vacant = unoccupied / empty' },
+      { cat: 'vocab', prompt: 'defective', ex: 'Customers may return any defective merchandise.', choices: ['高価な', '最新の', '欠陥のある・不良の', '限定版の'], ans: 2, note: 'defective = faulty / not working properly' },
+      { cat: 'paraphrase', prompt: 'prior to the seminar (本文)', ex: '本文の "prior to the seminar" は選択肢でどう言い換えられる？', choices: ['before the event begins', 'after the workshop ends', 'during the presentation', 'instead of the meeting'], ans: 0, note: 'prior to A ⇔ before A はPart 7鉄板の言い換え！' },
+      { cat: 'paraphrase', prompt: 'for more than three decades (本文)', ex: '本文の "three decades" は選択肢で何年？', choices: ['3 years', '13 years', '30 years', '300 years'], ans: 2, note: '1 decade = 10年 → three decades = 30 years！' },
+      { cat: 'paraphrase', prompt: 'at no additional cost (本文)', ex: '本文の "at no additional cost" の言い換えは？', choices: ['without paying an extra fee', 'at a 50% discount', 'by cash only', 'with a full refund'], ans: 0, note: 'no additional cost ⇔ without an extra fee / free' },
+      { cat: 'paraphrase', prompt: 'notify HR in advance (本文)', ex: '本文の "notify HR in advance" の言い換えは？', choices: ['inform the personnel department beforehand', 'hire new staff immediately', 'submit a resume online', 'cancel the interview'], ans: 0, note: 'notify ⇔ inform, HR ⇔ personnel, in advance ⇔ beforehand！' },
+      { cat: 'connector', prompt: 'nevertheless / nonetheless', ex: 'Sales fell in Q1; nevertheless, we kept our staff.', choices: ['それにもかかわらず（逆接）', 'その結果として（順接）', '例えば（例示）', 'さもなければ（条件）'], ans: 0, note: '直後に筆者の「本当に言いたい主張」が来ます！' },
+      { cat: 'connector', prompt: 'provided that ~ / as long as ~', ex: 'You may park here provided that you display a permit.', choices: ['〜にもかかわらず', 'もし〜ならば（条件）', '〜する代わりに', '〜した直後に'], ans: 1, note: 'Part 7の条件問題で根拠になる超重要マーカー！' },
+      { cat: 'connector', prompt: 'consequently / therefore', ex: 'The flight was canceled; consequently, we stayed overnight.', choices: ['したがって・その結果', '一方で', 'それに先立って', 'しかしながら'], ans: 0, note: '原因→結果をつなぐマーカー。Why問題の根拠！' }
+    ];
+
+    // =========================================================================
+    // 3. DATASET: 30-Day Bootcamp Plan (4 Weeks)
+    // =========================================================================
+    const BOOTCAMP_WEEKS = {
+      1: {
+        summary: '【Week 1: リハビリ＆返り読み矯正期（目標 110〜125 WPM）】 辞書なしで9割わかる短めメール・チャットを使い、「スラッシュごとに前から理解する感覚」と「1秒単語瞬発力」を取り戻します。',
+        days: [
+          { day: 1, title: 'Day 1: 弱点診断＆スラッシュ5原則の体感', task: 'Week 1-A（社内メール）を「②スラッシュ直訳モード」で3回読み、音声(1.0x)に合わせてシャドーイング', passageId: 'p1', mode: 'slash' },
+          { day: 2, title: 'Day 2: 返り読み強制ブロック訓練', task: 'Week 1-Aを「③返り読み防止消去モード (110 WPM)」で読み切り、後ろに戻らない目の動きを作る', passageId: 'p1', mode: 'eraser' },
+          { day: 3, title: 'Day 3: チャット問題の時系列＆口語スピード処理', task: 'Week 1-B（チャット）を「①実戦＆先読みモード」で解き、設問10秒先読みの流れを習得', passageId: 'p2', mode: 'standard' },
+          { day: 4, title: 'Day 4: 単語の瞬発力（1秒反射）ブートキャンプ', task: '「🎯1秒単語＆言い換え」タブでビジネス語彙ブリッツを3セット行い、1秒以内の即答回路を作る', passageId: 'p2', mode: 'rsvp' },
+          { day: 5, title: 'Day 5: チャンク高速フラッシュ脳トレ (130 WPM)', task: 'Week 1-Bを「④チャンク高速フラッシュ (130 WPM)」で再生し、眼球移動ゼロで英語のままイメージ化', passageId: 'p2', mode: 'rsvp' },
+          { day: 6, title: 'Day 6: 音声ペースメーカー音読（1.0x ➔ 1.2x）', task: 'Week 1-A / 1-Bを音声読み上げ(1.2x)と一緒に声に出して読み、英語の語順リズムを定着させる', passageId: 'p1', mode: 'slash' },
+          { day: 7, title: 'Day 7: Week 1 総復習タイムアタック', task: 'Week 1の2パッセージを125 WPM設定でノンストップ完走＆全問正解達成', passageId: 'p2', mode: 'standard' }
+        ]
+      },
+      2: {
+        summary: '【Week 2: 情報連結＆骨格SVOC抽出期（目標 130〜145 WPM）】 メールヘッダー・代名詞・時系列（先月/来月）を頭の中で繋ぐ技術と、長い文の「骨格SVOC」だけを抜き出す力を鍛えます。',
+        days: [
+          { day: 8, title: 'Day 8: 時系列リンク（基準日からの変換）特訓', task: 'Week 2-A（商品交換メール）を「⑤骨格SVOC＆レーダー」で読み、April 17基準でlast/next monthを即変換', passageId: 'p3', mode: 'svoc' },
+          { day: 9, title: 'Day 9: 長い主語と関係代名詞のスラッシュ突破', task: 'Week 2-B（石鹸工場ツアー告知）を「②スラッシュ直訳モード」で後ろから戻らずに前から処理', passageId: 'p4', mode: 'slash' },
+          { day: 10, title: 'Day 10: 消える英文イレイサー 135 WPM挑戦', task: 'Week 2-Bを「③返り読み防止消去 (135 WPM)」で完走し、関係代名詞節を前から繋ぐ回路を強化', passageId: 'p4', mode: 'eraser' },
+          { day: 11, title: 'Day 11: 条件(if/exceeding/prior to)レーダー特訓', task: 'Week 2-C（経費精算メモ）で条件マーカーをハイライト確認し、設問2問を1分半以内に即答', passageId: 'p5', mode: 'svoc' },
+          { day: 12, title: 'Day 12: Part 7 鉄板の言い換え（Paraphrase）制覇', task: '「🎯1秒単語＆言い換え」で言い換えペア特訓モードを満点クリアする', passageId: 'p5', mode: 'standard' },
+          { day: 13, title: 'Day 13: RSVP 150 WPM 高速フラッシュ耐久', task: 'Week 2-A〜2-Cを「④チャンク高速フラッシュ (150 WPM)」で連続再生し、脳の処理速度上限を引き上げる', passageId: 'p3', mode: 'rsvp' },
+          { day: 14, title: 'Day 14: Week 2 実戦測定（140 WPM目標）', task: 'Week 2全3パッセージを通しで計測し、WPM推移グラフで140 WPM超えを確認', passageId: 'p5', mode: 'standard' }
+        ]
+      },
+      3: {
+        summary: '【Week 3: 贅肉スルー＆設問10秒先読み完成期（目標 145〜160 WPM）】 難しめの記事や求人広告で「修飾語（贅肉）を20%の力で流す技術」と「選択肢を見ない設問10秒先読み」を完成させます。',
+        days: [
+          { day: 15, title: 'Day 15: 記事問題の「贅肉マスク」トレーニング', task: 'Week 3-A（ベトナム工場記事）で「贅肉マスク」をONにし、SVOの骨格だけで大意を掴む', passageId: 'p6', mode: 'svoc' },
+          { day: 16, title: 'Day 16: 求人広告の必須(mandatory) vs 歓迎(preferred)判別', task: 'Week 3-B（求人広告）を「①実戦＆先読み」で解き、ひっかけ選択肢を瞬時に見抜く', passageId: 'p7', mode: 'standard' },
+          { day: 17, title: 'Day 17: レビュー問題のPros/Cons対比スピード読解', task: 'Week 3-C（イヤホンレビュー）を150 WPMペースで読み、不満点(complaint)の言い換えを当てる', passageId: 'p8', mode: 'standard' },
+          { day: 18, title: 'Day 18: 返り読み防止イレイサー 155 WPM特訓', task: 'Week 3-Aの記事を「③返り読み防止消去 (155 WPM)」で追いかけ、本番以上の速度に目を慣らす', passageId: 'p6', mode: 'eraser' },
+          { day: 19, title: 'Day 19: 倍速シャドーイング（音声 1.2x）', task: 'Week 3の3パッセージを音声1.2倍速（約180 WPM相当）で追いかけ読みし、通常速度を遅く感じさせる', passageId: 'p7', mode: 'slash' },
+          { day: 20, title: 'Day 20: カスタム英文ラボで手持ち教材を高速化', task: '「🛠️カスタム英文」タブに手持ちの英文を貼り付け、自動スラッシュ＆155 WPM計測を実施', passageId: 'p8', mode: 'standard' },
+          { day: 21, title: 'Day 21: Week 3 到達度テスト（155+ WPM）', task: 'Week 3全問を「設問先読み10秒＋1問1分以内」で完走する', passageId: 'p8', mode: 'standard' }
+        ]
+      },
+      4: {
+        summary: '【Week 4: マルチパッセージ統合＆本番160+ WPM完走期】 ダブル・トリプルパッセージの「文書間リンク（クロスリファレンス）」を極め、本番で55分以内に全54問を解き切るスピードを定着させます。',
+        days: [
+          { day: 22, title: 'Day 22: ダブルパッセージの共通キー連結法', task: 'Week 4-A（ホテル予約＋料金表）で「75名・火曜」の条件を繋ぎ、2問を90秒以内で正解する', passageId: 'p9', mode: 'standard' },
+          { day: 23, title: 'Day 23: トリプルパッセージの3文書パズル解法', task: 'Week 4-B（研修案内＋表＋チャット）で3つの文書の時系列と人物移動を1回読みで繋ぐ', passageId: 'p10', mode: 'standard' },
+          { day: 24, title: 'Day 24: マルチパッセージ イレイサー 165 WPM', task: 'Week 4-A / 4-Bを「③返り読み防止消去 (165 WPM)」で読み、複数文書でも一切戻らない集中力を養う', passageId: 'p9', mode: 'eraser' },
+          { day: 25, title: 'Day 25: 180 WPM RSVP 高速オーバーロード訓練', task: 'Week 4-Bを「④チャンク高速フラッシュ (180 WPM)」で再生し、最高速域の脳内処理を体験する', passageId: 'p10', mode: 'rsvp' },
+          { day: 26, title: 'Day 26: 接続副詞＆条件マーカー総点検ブリッツ', task: '「🎯1秒単語＆言い換え」で制限時間1.2秒（超高速）モードに挑戦し、反応速度0.9秒以内を達成', passageId: 'p9', mode: 'svoc' },
+          { day: 27, title: 'Day 27: 苦手パッセージ・My単語帳の完全潰し込み', task: '「🛠️カスタム英文＆単語帳」に溜まった重要語彙を全復習し、引っかかる単語をゼロにする', passageId: 'p10', mode: 'slash' },
+          { day: 28, title: 'Day 28: 通し模試シミュレーション① (Lv.2〜Lv.3)', task: 'Week 2〜3の6パッセージを連続で解き、疲労時でも150 WPMが落ちない持久力を確認', passageId: 'p6', mode: 'standard' },
+          { day: 29, title: 'Day 29: 通し模試シミュレーション② (Lv.3〜Lv.4)', task: 'Week 3〜4のマルチパッセージを含む実戦演習を160 WPMペースで完走', passageId: 'p10', mode: 'standard' },
+          { day: 30, title: 'Day 30: 卒業ファイナル計測（160+ WPM ＆ 正答率90%+）', task: '全10パッセージのベスト記録を更新し、本番Part 7を余裕で読み切る自信を完成させる！', passageId: 'p10', mode: 'standard' }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // 4. APPLICATION STATE & STORAGE HELPERS
+    // =========================================================================
+    const state = {
+      activeTab: 'trainer',
+      currentPassageIdx: 0,
+      currentMode: 'standard', // 'standard' | 'slash' | 'eraser' | 'rsvp' | 'svoc'
+      targetWpm: 150,
+      fontSizeLevel: 0, // -1, 0, 1, 2
+      showChoicesPreview: false,
+      showChunkJp: false,
+      maskFat: false,
+      showInfoRadar: false,
+      soundEnabled: true,
+      // Timer & Pacemaker
+      isRunning: false,
+      isPaused: false,
+      elapsedSeconds: 0,
+      activeChunkIdx: -1,
+      measuredWpm: null,
+      timerInterval: null,
+      pacemakerInterval: null,
+      // User answers
+      selectedAnswers: {},
+      // Bootcamp & History
+      completedDays: [1, 2, 3],
+      activeWeek: 1,
+      wpmHistory: [
+        { label: 'Day 1 (Lv.1)', wpm: 108, acc: 75 },
+        { label: 'Day 2 (Lv.1)', wpm: 118, acc: 80 },
+        { label: 'Day 3 (Lv.2)', wpm: 128, acc: 85 },
+        { label: 'Day 4 (Lv.2)', wpm: 136, acc: 80 },
+        { label: '現在 (Lv.2)', wpm: 145, acc: 90 }
+      ],
+      savedVocab: [
+        { en: 'complimentary', jp: '無料の (= free of charge)' },
+        { en: 'mandatory', jp: '必須の (= required)' },
+        { en: 'accommodate', jp: '収容する・対応する' },
+        { en: 'prior to', jp: '〜より前に (= before)' },
+        { en: 'reimburse', jp: '（経費を）払い戻す・精算する' }
+      ],
+      // Blitz state
+      blitzActive: false,
+      blitzQueue: [],
+      blitzIndex: 0,
+      blitzScore: 0,
+      blitzCombo: 0,
+      blitzTimes: [],
+      blitzQuestionStart: 0,
+      blitzTimerId: null
+    };
+
+    function saveState() {
+      try {
+        localStorage.setItem('toeic_sr_pro_v1', JSON.stringify({
+          completedDays: state.completedDays,
+          wpmHistory: state.wpmHistory,
+          savedVocab: state.savedVocab,
+          targetWpm: state.targetWpm
+        }));
+      } catch (e) {
+        // Ignore storage errors in sandboxed iframe
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('toeic_sr_pro_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.completedDays)) state.completedDays = parsed.completedDays;
+          if (Array.isArray(parsed.wpmHistory) && parsed.wpmHistory.length > 0) state.wpmHistory = parsed.wpmHistory;
+          if (Array.isArray(parsed.savedVocab)) state.savedVocab = parsed.savedVocab;
+          if (typeof parsed.targetWpm === 'number') state.targetWpm = parsed.targetWpm;
+        }
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }
+
+    // =========================================================================
+    // 5. WEB AUDIO SYNTHESIZER (Pacemaker Clicks & Score Beeps)
+    // =========================================================================
+    let audioCtx = null;
+    function playTone(freq = 660, duration = 0.04, type = 'sine', gainVal = 0.06) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Ignore audio errors
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const el = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600' : type === 'warn' ? 'bg-amber-600' : 'bg-indigo-600';
+      el.className = `${bg} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-bold transition-all duration-300 pointer-events-auto`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(8px)';
+        setTimeout(() => el.remove(), 300);
+      }, 2800);
+    }
+
+    // =========================================================================
+    // 6. HELPER FUNCTIONS FOR WORD COUNT & RENDERING
+    // =========================================================================
+    function countPassageWords(passage) {
+      const text = passage.chunks.map(c => c.en).join(' ');
+      return text.trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function populatePassageSelect() {
+      const select = document.getElementById('passageSelect');
+      select.innerHTML = '';
+      PASSAGES.forEach((p, idx) => {
+        const words = countPassageWords(p);
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = `${p.title} (${words}語 | ${p.level})`;
+        select.appendChild(opt);
+      });
+      select.value = String(state.currentPassageIdx);
+    }
+
+    function updateModeDescriptions() {
+      const descEl = document.getElementById('modeDescription');
+      const modeMap = {
+        standard: '💡 <strong>① 実戦＆設問先読みモード:</strong> まず下の「設問10秒先読みバー」で問われるターゲットだけを確認し、「▶ 計測＆ガイド開始」を押して上から下へ返り読みせずに一気読みします。',
+        slash: '💡 <strong>② スラッシュ＆サイトトランスレーション:</strong> 意味の塊（チャンク）ごとにスラッシュで区切って表示します。チャンクをクリック/ホバーすると直訳が表示され、ペースメーカーで前から順々に光ります。',
+        eraser: '💡 <strong>③ 返り読み強制防止（消える英文）モード:</strong> 「▶ 計測＆ガイド開始」を押すと、設定したWPMの速度で<strong>読んだ端から前のチャンクが消えていきます</strong>！後ろに戻る癖を強制矯正します。',
+        rsvp: '💡 <strong>④ チャンク高速フラッシュ（RSVP）モード:</strong> 画面中央の1点に意味の塊（チャンク）を順番に高速フラッシュ表示します。視線移動のロスをゼロにして英語の語順のまま脳にインプットします。',
+        svoc: '💡 <strong>⑤ 骨格SVOC＆情報連結レーダー:</strong> 文の骨格（<span class="svoc-s">主語S</span>・<span class="svoc-v">動詞V</span>・<span class="svoc-o">目的語O</span>・<span class="svoc-c">補語C</span>）を色分けし、修飾語（贅肉）や日時・人物・条件を可視化します。'
+      };
+      descEl.innerHTML = modeMap[state.currentMode] || modeMap.standard;
+
+      // Update mode buttons styling
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        const m = btn.getAttribute('data-mode');
+        if (m === state.currentMode) {
+          btn.className = 'mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-indigo-600 text-white border-indigo-600 shadow-sm text-center';
+        } else {
+          btn.className = 'mode-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-center';
+        }
+      });
+
+      // Toggle RSVP vs Passage Body
+      const rsvpStage = document.getElementById('rsvpStage');
+      const passageBody = document.getElementById('passageBodyContainer');
+      if (state.currentMode === 'rsvp') {
+        rsvpStage.classList.remove('hidden');
+        passageBody.classList.add('hidden');
+        renderRsvpFrame();
+      } else {
+        rsvpStage.classList.add('hidden');
+        passageBody.classList.remove('hidden');
+      }
+    }
+
+    function renderQuestionPreviewBar() {
+      const passage = PASSAGES[state.currentPassageIdx];
+      const container = document.getElementById('questionPreviewList');
+      container.innerHTML = '';
+      passage.questions.forEach(qObj => {
+        const div = document.createElement('div');
+        div.className = 'flex flex-col gap-0.5';
+        let html = `<span class="font-bold">• ${qObj.q}</span>`;
+        if (state.showChoicesPreview) {
+          html += `<span class="text-xs text-amber-800 dark:text-amber-300 pl-3">${qObj.choices.join(' / ')}</span>`;
+        }
+        div.innerHTML = html;
+        container.appendChild(div);
+      });
+    }
+
+    function renderPassage() {
+      const passage = PASSAGES[state.currentPassageIdx];
+      const totalWords = countPassageWords(passage);
+      const targetSec = Math.round((totalWords / state.targetWpm) * 60);
+
+      document.getElementById('passageBadge').textContent = `Week ${passage.week} • ${passage.type}`;
+      document.getElementById('passageTitle').textContent = passage.title;
+      document.getElementById('passageWordCount').textContent = String(totalWords);
+      document.getElementById('passageTargetSec').textContent = `${targetSec}秒 (@${state.targetWpm}WPM)`;
+      document.getElementById('infoLinkHintText').textContent = passage.hint;
+      document.getElementById('fullTranslationText').innerHTML = passage.fullTranslation.replace(/\n/g, '<br>');
+
+      renderQuestionPreviewBar();
+
+      // Render chunks in passageBodyContainer
+      const container = document.getElementById('passageBodyContainer');
+      container.innerHTML = '';
+      const sizeClasses = ['text-sm', 'text-base', 'text-lg', 'text-xl'];
+      const fontClass = sizeClasses[Math.max(0, Math.min(sizeClasses.length - 1, state.fontSizeLevel + 1))];
+      container.className = `p-4 sm:p-6 english-text ${fontClass} leading-relaxed`;
+
+      const isSlashMode = state.currentMode === 'slash';
+      const isSvocMode = state.currentMode === 'svoc';
+      const isEraserMode = state.currentMode === 'eraser';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-1.5';
+
+      passage.chunks.forEach((chunk, idx) => {
+        const span = document.createElement('span');
+        span.setAttribute('data-chunk-idx', String(idx));
+        let classes = ['chunk-item', 'cursor-pointer'];
+
+        // Role styling in SVOC or Radar mode
+        if (isSvocMode) {
+          if (chunk.role === 's') classes.push('svoc-s');
+          else if (chunk.role === 'v') classes.push('svoc-v');
+          else if (chunk.role === 'o') classes.push('svoc-o');
+          else if (chunk.role === 'c') classes.push('svoc-c');
+          else if (chunk.role === 'fat') classes.push('mod-fat');
+        }
+        if (state.maskFat && chunk.role === 'fat') {
+          classes.push('fat-masked');
+        }
+        if (state.showInfoRadar || isSvocMode) {
+          if (chunk.role === 'time') classes.push('radar-time');
+          else if (chunk.role === 'person') classes.push('radar-person');
+          else if (chunk.role === 'cond') classes.push('radar-cond');
+        }
+        if (idx === state.activeChunkIdx) {
+          classes.push('chunk-active');
+        }
+        if (isEraserMode && state.activeChunkIdx > idx) {
+          classes.push('chunk-erased');
+        }
+
+        span.className = classes.join(' ');
+        span.title = chunk.jp;
+
+        let innerHtml = `<span>${chunk.en}</span>`;
+        if (isSlashMode) {
+          innerHtml += ` <span class="text-indigo-500 dark:text-indigo-400 font-extrabold select-none px-0.5">/</span>`;
+        }
+        if (state.showChunkJp || (isSlashMode && idx === state.activeChunkIdx)) {
+          innerHtml += `<span class="block text-[11px] font-sans text-indigo-600 dark:text-indigo-300 font-normal leading-tight">${chunk.jp}</span>`;
+        }
+        span.innerHTML = innerHtml;
+
+        span.addEventListener('click', () => {
+          state.activeChunkIdx = idx;
+          renderPassage();
+          showToast(`チャンク直訳: ${chunk.en} ➔ ${chunk.jp}`, 'info');
+        });
+
+        wrapper.appendChild(span);
+
+        // Line break after header fields (To:, From:, Date:, Subject:, or chat lines)
+        if (/^(To:|From:|Date:|Subject:|---|\u2022)/.test(chunk.en) || idx < 3 && passage.type.includes('Email')) {
+          wrapper.appendChild(document.createElement('br'));
+        }
+      });
+
+      container.appendChild(wrapper);
+
+      // Render Key Vocab Pills
+      const vocabList = document.getElementById('passageVocabList');
+      vocabList.innerHTML = '';
+      passage.vocab.forEach(v => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-xs transition-all flex items-center gap-1.5 shadow-sm';
+        btn.innerHTML = `<strong class="text-indigo-600 dark:text-indigo-400">${v.en}</strong> <span class="text-slate-600 dark:text-slate-300">${v.jp}</span> <span class="text-[10px] text-amber-500">+保存</span>`;
+        btn.addEventListener('click', () => {
+          addVocabToBook(v.en, v.jp);
+        });
+        vocabList.appendChild(btn);
+      });
+
+      renderRsvpFrame();
+    }
+
+    function renderRsvpFrame() {
+      const passage = PASSAGES[state.currentPassageIdx];
+      const idx = Math.max(0, state.activeChunkIdx);
+      const chunk = passage.chunks[idx] || passage.chunks[0];
+      const total = passage.chunks.length;
+      const pct = total > 0 ? Math.round(((idx + 1) / total) * 100) : 0;
+
+      document.getElementById('rsvpProgressBar').style.width = `${pct}%`;
+      document.getElementById('rsvpChunkEn').textContent = chunk ? chunk.en : '';
+      document.getElementById('rsvpChunkJp').textContent = chunk ? chunk.jp : '';
+      document.getElementById('rsvpCounter').textContent = `${idx + 1} / ${total}`;
+    }
+
+    function renderQuestions() {
+      const passage = PASSAGES[state.currentPassageIdx];
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      passage.questions.forEach((qObj, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-2.5';
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 english-text';
+        qTitle.textContent = qObj.q;
+        card.appendChild(qTitle);
+
+        const choicesDiv = document.createElement('div');
+        choicesDiv.className = 'space-y-1.5';
+
+        qObj.choices.forEach((cText, cIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const selected = state.selectedAnswers[qIdx] === cIdx;
+          btn.className = `w-full text-left px-3 py-2 rounded-lg text-xs sm:text-sm english-text border transition-all ${
+            selected
+              ? 'bg-indigo-600 text-white border-indigo-600 font-semibold shadow-sm'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
+          }`;
+          btn.textContent = cText;
+          btn.addEventListener('click', () => {
+            state.selectedAnswers[qIdx] = cIdx;
+            renderQuestions();
+          });
+          choicesDiv.appendChild(btn);
+        });
+
+        card.appendChild(choicesDiv);
+
+        // Explanation placeholder
+        const expDiv = document.createElement('div');
+        expDiv.id = `q-exp-${qIdx}`;
+        expDiv.className = 'hidden p-2.5 rounded-lg text-xs leading-relaxed mt-2';
+        card.appendChild(expDiv);
+
+        container.appendChild(card);
+      });
+    }
+
+    // =========================================================================
+    // 7. TIMER, PACEMAKER & WPM MEASUREMENT ENGINE
+    // =========================================================================
+    function clearTimers() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+      if (state.pacemakerInterval) {
+        clearTimeout(state.pacemakerInterval);
+        state.pacemakerInterval = null;
+      }
+    }
+
+    function formatSec(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function stepPacemaker() {
+      if (!state.isRunning || state.isPaused) return;
+      const passage = PASSAGES[state.currentPassageIdx];
+      if (state.activeChunkIdx < passage.chunks.length - 1) {
+        state.activeChunkIdx++;
+        playTone(580, 0.025, 'sine', 0.03);
+        renderPassage();
+
+        const currentChunkWords = passage.chunks[state.activeChunkIdx].en.trim().split(/\s+/).length || 3;
+        const msPerWord = (60 / state.targetWpm) * 1000;
+        const delay = Math.max(350, Math.round(currentChunkWords * msPerWord));
+        state.pacemakerInterval = setTimeout(stepPacemaker, delay);
+      } else {
+        // Finished all chunks automatically in RSVP or Eraser
+        finishReadingMeasurement();
+      }
+    }
+
+    function startReadingSession() {
+      clearTimers();
+      state.isRunning = true;
+      state.isPaused = false;
+      if (state.activeChunkIdx < 0 || state.activeChunkIdx >= PASSAGES[state.currentPassageIdx].chunks.length - 1) {
+        state.activeChunkIdx = 0;
+        state.elapsedSeconds = 0;
+      }
+
+      document.getElementById('startTimerBtn').classList.add('hidden');
+      document.getElementById('pauseTimerBtn').classList.remove('hidden');
+      document.getElementById('finishReadingBtn').classList.remove('hidden');
+
+      renderPassage();
+      playTone(740, 0.06, 'triangle', 0.06);
+
+      state.timerInterval = setInterval(() => {
+        if (!state.isPaused) {
+          state.elapsedSeconds++;
+          document.getElementById('liveElapsed').textContent = formatSec(state.elapsedSeconds);
+          const totalWords = countPassageWords(PASSAGES[state.currentPassageIdx]);
+          const currentEstWpm = Math.min(450, Math.round((totalWords / Math.max(3, state.elapsedSeconds)) * 60));
+          document.getElementById('liveWpm').textContent = `${currentEstWpm} WPM`;
+        }
+      }, 1000);
+
+      // Start chunk pacemaker step
+      const firstWords = PASSAGES[state.currentPassageIdx].chunks[state.activeChunkIdx].en.trim().split(/\s+/).length || 3;
+      const firstDelay = Math.max(400, Math.round(firstWords * ((60 / state.targetWpm) * 1000)));
+      state.pacemakerInterval = setTimeout(stepPacemaker, firstDelay);
+    }
+
+    function finishReadingMeasurement() {
+      clearTimers();
+      state.isRunning = false;
+      state.isPaused = false;
+
+      const totalWords = countPassageWords(PASSAGES[state.currentPassageIdx]);
+      const effectiveSec = Math.max(4, state.elapsedSeconds);
+      const finalWpm = Math.min(380, Math.round((totalWords / effectiveSec) * 60));
+      state.measuredWpm = finalWpm;
+
+      document.getElementById('liveWpm').textContent = `${finalWpm} WPM (確定!)`;
+      document.getElementById('startTimerBtn').classList.remove('hidden');
+      document.getElementById('pauseTimerBtn').classList.add('hidden');
+      document.getElementById('finishReadingBtn').classList.add('hidden');
+
+      playTone(880, 0.1, 'sine', 0.08);
+      showToast(`読了スピード確定: ${finalWpm} WPM！右側の設問に解答して採点しましょう。`, 'success');
+    }
+
+    function resetReadingSession() {
+      clearTimers();
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      state.isRunning = false;
+      state.isPaused = false;
+      state.elapsedSeconds = 0;
+      state.activeChunkIdx = -1;
+      state.measuredWpm = null;
+      state.selectedAnswers = {};
+
+      document.getElementById('liveElapsed').textContent = '00:00';
+      document.getElementById('liveWpm').textContent = '-- WPM';
+      document.getElementById('questionScoreBadge').textContent = '未採点';
+      document.getElementById('questionScoreBadge').className = 'px-2.5 py-1 rounded-lg text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+      document.getElementById('startTimerBtn').classList.remove('hidden');
+      document.getElementById('pauseTimerBtn').classList.add('hidden');
+      document.getElementById('finishReadingBtn').classList.add('hidden');
+
+      renderPassage();
+      renderQuestions();
+    }
+
+    function gradePassageAnswers() {
+      const passage = PASSAGES[state.currentPassageIdx];
+      let correctCount = 0;
+
+      passage.questions.forEach((qObj, qIdx) => {
+        const userAns = state.selectedAnswers[qIdx];
+        const isCorrect = userAns === qObj.answer;
+        if (isCorrect) correctCount++;
+
+        const expEl = document.getElementById(`q-exp-${qIdx}`);
+        if (expEl) {
+          expEl.classList.remove('hidden');
+          expEl.className = `p-3 rounded-xl text-xs leading-relaxed mt-2 border ${
+            isCorrect
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200'
+              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-950 dark:text-rose-200'
+          }`;
+          expEl.innerHTML = `<div class="font-extrabold mb-1">${isCorrect ? '⭕ 正解！' : `❌ 不正解（正解は ${qObj.choices[qObj.answer]}）`}</div><div>${qObj.explanation}</div>`;
+        }
+      });
+
+      const acc = Math.round((correctCount / passage.questions.length) * 100);
+      const wpm = state.measuredWpm || state.targetWpm;
+
+      const badge = document.getElementById('questionScoreBadge');
+      badge.textContent = `${correctCount} / ${passage.questions.length} 正解 (${acc}%) • ${wpm} WPM`;
+      badge.className = 'px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/70 dark:text-emerald-200';
+
+      // Save to history & refresh chart
+      state.wpmHistory.push({
+        label: `Week ${passage.week} (${passage.id.toUpperCase()})`,
+        wpm: wpm,
+        acc: acc
+      });
+      if (state.wpmHistory.length > 12) state.wpmHistory.shift();
+      saveState();
+      updateDashboardStats();
+      playTone(980, 0.12, 'triangle', 0.08);
+      showToast(`採点完了！ 正答率 ${acc}% / 読解速度 ${wpm} WPM を記録しました！`, 'success');
+    }
+
+    // =========================================================================
+    // 8. WEB SPEECH API (TTS) AUDIO PACEMAKER
+    // =========================================================================
+    function toggleTtsPlayback() {
+      if (!('speechSynthesis' in window)) {
+        showToast('お使いのブラウザは音声合成に対応していません。', 'warn');
+        return;
+      }
+      const synth = window.speechSynthesis;
+      if (synth.speaking) {
+        synth.cancel();
+        document.getElementById('ttsPlayBtn').textContent = '🎧 音声読み上げ';
+        return;
+      }
+      const passage = PASSAGES[state.currentPassageIdx];
+      const text = passage.chunks.map(c => c.en).join(' ');
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      const rate = parseFloat(document.getElementById('ttsRateSelect').value) || 1.0;
+      utter.rate = rate;
+      utter.onend = () => {
+        document.getElementById('ttsPlayBtn').textContent = '🎧 音声読み上げ';
+      };
+      document.getElementById('ttsPlayBtn').textContent = '⏹ 音声停止';
+      synth.speak(utter);
+      showToast(`英語音声ペースメーカー (${rate}x) を再生中... 声に合わせて前から意味を掴みましょう！`, 'info');
+    }
+
+    // =========================================================================
+    // 9. 1-SECOND VOCAB & PARAPHRASE BLITZ ENGINE
+    // =========================================================================
+    function startBlitzSession() {
+      const cat = document.getElementById('blitzCategorySelect').value;
+      const pool = cat === 'all' ? [...BLITZ_ITEMS] : BLITZ_ITEMS.filter(i => i.cat === cat);
+      // Shuffle & pick up to 10
+      state.blitzQueue = pool.sort(() => Math.random() - 0.5).slice(0, 10);
+      state.blitzIndex = 0;
+      state.blitzScore = 0;
+      state.blitzCombo = 0;
+      state.blitzTimes = [];
+      state.blitzActive = true;
+
+      updateBlitzStatsUI();
+      nextBlitzQuestion();
+    }
+
+    function nextBlitzQuestion() {
+      if (state.blitzTimerId) {
+        clearInterval(state.blitzTimerId);
+        state.blitzTimerId = null;
+      }
+      if (state.blitzIndex >= state.blitzQueue.length) {
+        state.blitzActive = false;
+        document.getElementById('blitzTag').textContent = 'SESSION COMPLETE!';
+        document.getElementById('blitzPrompt').textContent = `スコア: ${state.blitzScore} / ${state.blitzQueue.length}`;
+        document.getElementById('blitzExample').textContent = '素晴らしい瞬発力です！間違えた単語はMy単語帳で復習しましょう。';
+        document.getElementById('blitzChoicesGrid').innerHTML = '';
+        playTone(880, 0.15, 'triangle', 0.08);
+        return;
+      }
+
+      const item = state.blitzQueue[state.blitzIndex];
+      const limitMs = parseInt(document.getElementById('blitzTimeLimitSelect').value, 10) || 1800;
+
+      document.getElementById('blitzTag').textContent = `QUESTION ${state.blitzIndex + 1} / ${state.blitzQueue.length} • ${item.cat.toUpperCase()}`;
+      document.getElementById('blitzPrompt').textContent = item.prompt;
+      document.getElementById('blitzExample').textContent = item.ex;
+      document.getElementById('blitzFeedback').textContent = '';
+
+      const grid = document.getElementById('blitzChoicesGrid');
+      grid.innerHTML = '';
+      item.choices.forEach((choiceText, cIdx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'p-3 rounded-xl bg-slate-800 hover:bg-indigo-600 border border-slate-700 text-left text-xs sm:text-sm font-bold transition-all';
+        btn.textContent = choiceText;
+        btn.addEventListener('click', () => handleBlitzAnswer(cIdx));
+        grid.appendChild(btn);
+      });
+
+      state.blitzQuestionStart = performance.now();
+      const bar = document.getElementById('blitzTimerBar');
+      bar.style.width = '100%';
+
+      state.blitzTimerId = setInterval(() => {
+        const elapsed = performance.now() - state.blitzQuestionStart;
+        const pct = Math.max(0, 100 - (elapsed / limitMs) * 100);
+        bar.style.width = `${pct}%`;
+        if (elapsed >= limitMs) {
+          clearInterval(state.blitzTimerId);
+          state.blitzTimerId = null;
+          handleBlitzAnswer(-1); // Timeout
+        }
+      }, 40);
+    }
+
+    function handleBlitzAnswer(choiceIdx) {
+      if (!state.blitzActive) return;
+      if (state.blitzTimerId) {
+        clearInterval(state.blitzTimerId);
+        state.blitzTimerId = null;
+      }
+      const item = state.blitzQueue[state.blitzIndex];
+      const elapsedSec = Math.round(((performance.now() - state.blitzQuestionStart) / 1000) * 100) / 100;
+      const isCorrect = choiceIdx === item.ans;
+
+      if (isCorrect) {
+        state.blitzScore++;
+        state.blitzCombo++;
+        state.blitzTimes.push(elapsedSec);
+        playTone(820, 0.06, 'sine', 0.06);
+        document.getElementById('blitzFeedback').textContent = `⭕ 即答成功！ (${elapsedSec}秒) — ${item.note}`;
+      } else {
+        state.blitzCombo = 0;
+        playTone(260, 0.12, 'sawtooth', 0.06);
+        const reason = choiceIdx === -1 ? '⏰ 時間切れ！' : '❌ 惜しい！';
+        document.getElementById('blitzFeedback').textContent = `${reason} 正解: ${item.choices[item.ans]} — My単語帳に自動追加しました`;
+        addVocabToBook(item.prompt, item.choices[item.ans], true);
+      }
+
+      updateBlitzStatsUI();
+      state.blitzIndex++;
+      setTimeout(nextBlitzQuestion, 1100);
+    }
+
+    function updateBlitzStatsUI() {
+      const total = state.blitzQueue.length || 10;
+      document.getElementById('blitzScoreText').textContent = `${state.blitzScore} / ${total}`;
+      const avg = state.blitzTimes.length > 0
+        ? (state.blitzTimes.reduce((a, b) => a + b, 0) / state.blitzTimes.length).toFixed(2)
+        : '--';
+      document.getElementById('blitzAvgTimeText').textContent = `${avg} 秒`;
+      document.getElementById('blitzComboText').textContent = `${state.blitzCombo} 🔥`;
+    }
+
+    // =========================================================================
+    // 10. DASHBOARD, CHART.JS & 30-DAY BOOTCAMP TRACKER
+    // =========================================================================
+    let wpmChartInstance = null;
+
+    function updateDashboardStats() {
+      const wpms = state.wpmHistory.map(h => h.wpm);
+      const accs = state.wpmHistory.map(h => h.acc);
+      const avgWpm = wpms.length ? Math.round(wpms.reduce((a, b) => a + b, 0) / wpms.length) : 128;
+      const bestWpm = wpms.length ? Math.max(...wpms) : 145;
+      const avgAcc = accs.length ? Math.round(accs.reduce((a, b) => a + b, 0) / accs.length) : 82;
+
+      document.getElementById('headerAvgWpm').textContent = `${avgWpm} WPM`;
+      document.getElementById('dashAvgWpm').textContent = `${avgWpm} WPM`;
+      document.getElementById('dashBestWpm').textContent = `${bestWpm} WPM`;
+      document.getElementById('dashAccuracy').textContent = `${avgAcc}%`;
+      document.getElementById('dashDaysDone').textContent = `${state.completedDays.length} / 30 日`;
+      document.getElementById('dashProgressBar').style.width = `${Math.round((state.completedDays.length / 30) * 100)}%`;
+
+      renderWpmChart();
+    }
+
+    function renderWpmChart() {
+      const canvas = document.getElementById('wpmChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      const labels = state.wpmHistory.map(h => h.label);
+      const wpmData = state.wpmHistory.map(h => h.wpm);
+      const accData = state.wpmHistory.map(h => h.acc);
+
+      if (wpmChartInstance) {
+        wpmChartInstance.data.labels = labels;
+        wpmChartInstance.data.datasets[0].data = wpmData;
+        wpmChartInstance.data.datasets[1].data = accData;
+        wpmChartInstance.update();
+        return;
+      }
+
+      wpmChartInstance = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '読解スピード (WPM)',
+              data: wpmData,
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.15)',
+              borderWidth: 3,
+              tension: 0.3,
+              fill: true,
+              yAxisID: 'y'
+            },
+            {
+              label: '設問正答率 (%)',
+              data: accData,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              tension: 0.3,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              min: 80,
+              max: 220,
+              title: { display: true, text: 'WPM' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              min: 0,
+              max: 100,
+              grid: { drawOnChartArea: false },
+              title: { display: true, text: '正答率 (%)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderBootcampCalendar() {
+      const weekObj = BOOTCAMP_WEEKS[state.activeWeek];
+      document.getElementById('weekSummaryBanner').textContent = weekObj.summary;
+
+      document.querySelectorAll('.week-tab-btn').forEach(btn => {
+        const w = parseInt(btn.getAttribute('data-week'), 10);
+        if (w === state.activeWeek) {
+          btn.className = 'week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm';
+        } else {
+          btn.className = 'week-tab-btn py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+        }
+      });
+
+      const list = document.getElementById('bootcampDaysList');
+      list.innerHTML = '';
+
+      weekObj.days.forEach(d => {
+        const isDone = state.completedDays.includes(d.day);
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border transition-all flex items-start justify-between gap-2.5 ${
+          isDone
+            ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/70'
+            : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700'
+        }`;
+
+        const left = document.createElement('label');
+        left.className = 'flex items-start gap-2.5 cursor-pointer flex-1';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = isDone;
+        cb.className = 'mt-1 rounded text-emerald-600 focus:ring-emerald-500';
+        cb.addEventListener('change', () => {
+          if (cb.checked) {
+            if (!state.completedDays.includes(d.day)) state.completedDays.push(d.day);
+            showToast(`Day ${d.day} ミッション完了！`, 'success');
+          } else {
+            state.completedDays = state.completedDays.filter(x => x !== d.day);
+          }
+          saveState();
+          updateDashboardStats();
+          renderBootcampCalendar();
+        });
+
+        const textDiv = document.createElement('div');
+        textDiv.innerHTML = `<div class="text-xs font-bold ${isDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${d.title}</div><div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${d.task}</div>`;
+        left.appendChild(cb);
+        left.appendChild(textDiv);
+
+        const jumpBtn = document.createElement('button');
+        jumpBtn.type = 'button';
+        jumpBtn.className = 'shrink-0 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 text-[11px] font-bold';
+        jumpBtn.textContent = '▶ 特訓へ';
+        jumpBtn.addEventListener('click', () => {
+          const pIdx = PASSAGES.findIndex(p => p.id === d.passageId);
+          if (pIdx >= 0) state.currentPassageIdx = pIdx;
+          state.currentMode = d.mode || 'standard';
+          populatePassageSelect();
+          switchTab('trainer');
+          updateModeDescriptions();
+          resetReadingSession();
+          showToast(`${d.title} の特訓セットを起動しました！`, 'info');
+        });
+
+        item.appendChild(left);
+        item.appendChild(jumpBtn);
+        list.appendChild(item);
+      });
+    }
+
+    // =========================================================================
+    // 11. DIAGNOSIS PRESCRIPTION & CUSTOM TEXT PARSER & VOCAB BOOK
+    // =========================================================================
+    function updateDiagnosisPrescription() {
+      const checked = Array.from(document.querySelectorAll('.diag-check:checked')).map(el => el.value);
+      const box = document.getElementById('diagnosisPrescription');
+      if (checked.length === 0) {
+        box.innerHTML = '<strong>✨ 症状を選択してください:</strong> 上のチェックボックスを選択すると、あなたに最適なトレーニングモードを提案します。';
+        return;
+      }
+
+      const items = [];
+      if (checked.includes('regression')) {
+        items.push('<li><strong>【返り読み矯正処方】</strong> まずはトレーナーの<strong>「③ 返り読み防止消去（イレイサー）モード」</strong>と<strong>「② スラッシュ直訳モード」</strong>を120〜140 WPMで使い、物理的に後ろへ戻れない環境で「前から意味を積み上げる」回路を作りましょう。</li>');
+      }
+      if (checked.includes('vocab_lag')) {
+        items.push('<li><strong>【単語瞬発力処方】</strong> 「知ってるけど思い出すのに2秒かかる」のがブランク最大の敵です。毎日最初に<strong>「🎯 1秒単語＆言い換えブリッツ」</strong>を2セット行い、1秒以内の即答反射を取り戻しましょう。</li>');
+      }
+      if (checked.includes('modifier_lost')) {
+        items.push('<li><strong>【骨格SVOC処方】</strong> トレーナーの<strong>「⑤ 骨格SVOC＆レーダーモード」＋「贅肉マスクON」</strong>を使い、前置詞句や副詞を20%の力でスルーして主語(S)と動詞(V)の幹だけを掴む練習をしましょう。</li>');
+      }
+      if (checked.includes('memory_drop')) {
+        items.push('<li><strong>【情報連結＆先読み処方】</strong> 読む前に<strong>「設問10秒先読みバー（選択肢は見ない）」</strong>でターゲットを確認し、メールのドメイン（@以降）と日時・代名詞を繋ぎながら1回で読み切る練習を行いましょう。</li>');
+      }
+
+      box.innerHTML = `<div class="font-extrabold text-indigo-700 dark:text-indigo-300 mb-1">💡 あなたへの最優先トレーニング処方箋（1ヶ月でスラスラ読める最短ルート）:</div><ul class="list-disc pl-5 space-y-1">${items.join('')}</ul>`;
+    }
+
+    function autoChunkEnglishText(rawText) {
+      // Split sentences and clauses into natural 3-7 word reading chunks
+      const lines = rawText.split(/\n+/).map(l => l.trim()).filter(Boolean);
+      const chunks = [];
+      lines.forEach(line => {
+        // Split around punctuation or before common prepositions/conjunctions/relatives when chunk is long enough
+        const parts = line
+          .replace(/([,.;:!?])\s+/g, '$1|SPLIT|')
+          .replace(/\s+(because|although|though|while|when|if|unless|that|which|who|where|before|after|during|between|through|from|with|into|within|including|according to)\s+/gi, '|SPLIT|$1 ')
+          .split('|SPLIT|')
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        parts.forEach(p => {
+          let role = 'o';
+          if (/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|A\.M\.|P\.M\.|period|date|time|year|month|week)\b/i.test(p)) {
+            role = 'time';
+          } else if (/\b(if|unless|during|within|exceeding|must|required)\b/i.test(p)) {
+            role = 'cond';
+          } else if (/\b(Dear|Staff|employees|Manager|Director|Customer|Mr\.|Ms\.)\b/i.test(p)) {
+            role = 'person';
+          }
+          chunks.push({
+            en: p,
+            jp: '（カスタム英文チャンク — 前から英語のままイメージ！）',
+            role: role
+          });
+        });
+      });
+      return chunks.length > 0 ? chunks : [{ en: rawText, jp: 'カスタム英文', role: 's' }];
+    }
+
+    function addVocabToBook(en, jp, silent = false) {
+      if (!en || !jp) return;
+      const exists = state.savedVocab.some(v => v.en.toLowerCase() === en.toLowerCase());
+      if (!exists) {
+        state.savedVocab.unshift({ en, jp });
+        saveState();
+        renderSavedVocab();
+        if (!silent) showToast(`「${en} (${jp})」をMy単語帳に保存しました！`, 'success');
+      } else if (!silent) {
+        showToast(`「${en}」は既にMy単語帳に登録されています。`, 'info');
+      }
+    }
+
+    function renderSavedVocab() {
+      const container = document.getElementById('savedVocabContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      if (state.savedVocab.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">保存された単語はまだありません。</div>';
+        return;
+      }
+      state.savedVocab.forEach((v, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs';
+        row.innerHTML = `<div><strong class="text-indigo-600 dark:text-indigo-400 font-bold english-text mr-2">${v.en}</strong><span class="text-slate-700 dark:text-slate-200">${v.jp}</span></div>`;
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'text-slate-400 hover:text-rose-500 font-bold px-1.5';
+        delBtn.textContent = '✕';
+        delBtn.addEventListener('click', () => {
+          state.savedVocab.splice(idx, 1);
+          saveState();
+          renderSavedVocab();
+        });
+        row.appendChild(delBtn);
+        container.appendChild(row);
+      });
+    }
+
+    // =========================================================================
+    // 12. TAB NAVIGATION & EVENT LISTENERS INITIALIZATION
+    // =========================================================================
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        if (panel.id === `tab-${tabId}`) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        const t = btn.getAttribute('data-tab');
+        if (t === tabId) {
+          btn.className = 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm';
+        } else {
+          btn.className = 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+        }
+      });
+      if (tabId === 'dashboard') {
+        setTimeout(updateDashboardStats, 50);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+
+      // Populate initial UI
+      populatePassageSelect();
+      document.getElementById('targetWpmSlider').value = String(state.targetWpm);
+      document.getElementById('targetWpmLabel').textContent = `${state.targetWpm} WPM`;
+      updateModeDescriptions();
+      renderPassage();
+      renderQuestions();
+      renderBootcampCalendar();
+      updateDiagnosisPrescription();
+      renderSavedVocab();
+      updateDashboardStats();
+
+      // Nav tabs
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+      });
+
+      // Passage change
+      document.getElementById('passageSelect').addEventListener('change', (e) => {
+        state.currentPassageIdx = parseInt(e.target.value, 10) || 0;
+        resetReadingSession();
+      });
+
+      // Mode buttons
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.currentMode = btn.getAttribute('data-mode');
+          if (state.currentMode === 'rsvp' && state.activeChunkIdx < 0) state.activeChunkIdx = 0;
+          updateModeDescriptions();
+          renderPassage();
+        });
+      });
+
+      // Target WPM slider
+      document.getElementById('targetWpmSlider').addEventListener('input', (e) => {
+        state.targetWpm = parseInt(e.target.value, 10) || 150;
+        document.getElementById('targetWpmLabel').textContent = `${state.targetWpm} WPM`;
+        saveState();
+        renderPassage();
+      });
+
+      // Trainer Timer Controls
+      document.getElementById('startTimerBtn').addEventListener('click', startReadingSession);
+      document.getElementById('pauseTimerBtn').addEventListener('click', () => {
+        state.isPaused = !state.isPaused;
+        document.getElementById('pauseTimerBtn').textContent = state.isPaused ? '▶ 再開' : '⏸ 一時停止';
+        if (!state.isPaused) stepPacemaker();
+      });
+      document.getElementById('finishReadingBtn').addEventListener('click', finishReadingMeasurement);
+      document.getElementById('resetTrainerBtn').addEventListener('click', resetReadingSession);
+
+      // Extra Checkboxes
+      document.getElementById('toggleChunkJp').addEventListener('change', (e) => {
+        state.showChunkJp = e.target.checked;
+        renderPassage();
+      });
+      document.getElementById('toggleFatMask').addEventListener('change', (e) => {
+        state.maskFat = e.target.checked;
+        renderPassage();
+      });
+      document.getElementById('toggleInfoRadar').addEventListener('change', (e) => {
+        state.showInfoRadar = e.target.checked;
+        renderPassage();
+      });
+
+      // Choices preview toggle
+      document.getElementById('toggleChoicesPreviewBtn').addEventListener('click', () => {
+        state.showChoicesPreview = !state.showChoicesPreview;
+        renderQuestionPreviewBar();
+      });
+
+      // Font size buttons
+      document.getElementById('fontSizeDownBtn').addEventListener('click', () => {
+        state.fontSizeLevel = Math.max(-1, state.fontSizeLevel - 1);
+        renderPassage();
+      });
+      document.getElementById('fontSizeUpBtn').addEventListener('click', () => {
+        state.fontSizeLevel = Math.min(2, state.fontSizeLevel + 1);
+        renderPassage();
+      });
+
+      // RSVP Step buttons
+      document.getElementById('rsvpPrevBtn').addEventListener('click', () => {
+        state.activeChunkIdx = Math.max(0, state.activeChunkIdx - 1);
+        renderRsvpFrame();
+      });
+      document.getElementById('rsvpNextBtn').addEventListener('click', () => {
+        const maxIdx = PASSAGES[state.currentPassageIdx].chunks.length - 1;
+        state.activeChunkIdx = Math.min(maxIdx, state.activeChunkIdx + 1);
+        renderRsvpFrame();
+      });
+
+      // Submit answers & Full translation
+      document.getElementById('submitAnswersBtn').addEventListener('click', gradePassageAnswers);
+      document.getElementById('toggleFullTranslationBtn').addEventListener('click', () => {
+        document.getElementById('fullTranslationBox').classList.toggle('hidden');
+      });
+
+      // TTS Playback
+      document.getElementById('ttsPlayBtn').addEventListener('click', toggleTtsPlayback);
+
+      // Sound & Theme Toggles
+      document.getElementById('soundToggleBtn').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        document.getElementById('soundToggleBtn').textContent = state.soundEnabled ? '🔊 音ON' : '🔇 音OFF';
+      });
+      document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
+      });
+
+      // Blitz Start
+      document.getElementById('startBlitzBtn').addEventListener('click', startBlitzSession);
+
+      // Bootcamp Week Tabs
+      document.querySelectorAll('.week-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.activeWeek = parseInt(btn.getAttribute('data-week'), 10) || 1;
+          renderBootcampCalendar();
+        });
+      });
+
+      // Demo record button on chart
+      document.getElementById('addDemoRecordBtn').addEventListener('click', () => {
+        const lastWpm = state.wpmHistory[state.wpmHistory.length - 1]?.wpm || 135;
+        const nextWpm = Math.min(200, lastWpm + Math.floor(Math.random() * 8) + 3);
+        state.wpmHistory.push({
+          label: `特訓 #${state.wpmHistory.length + 1}`,
+          wpm: nextWpm,
+          acc: Math.min(100, 80 + Math.floor(Math.random() * 20))
+        });
+        saveState();
+        updateDashboardStats();
+        showToast(`トレーニング記録 (${nextWpm} WPM) をグラフに追加しました！`, 'success');
+      });
+
+      // Diagnosis checkboxes
+      document.querySelectorAll('.diag-check').forEach(cb => {
+        cb.addEventListener('change', updateDiagnosisPrescription);
+      });
+
+      // Custom Text Importer
+      document.getElementById('loadCustomPassageBtn').addEventListener('click', () => {
+        const title = document.getElementById('customTitleInput').value.trim() || 'Custom Passage';
+        const rawText = document.getElementById('customTextInput').value.trim();
+        if (!rawText) {
+          showToast('英文テキストを入力してください。', 'warn');
+          return;
+        }
+        const chunks = autoChunkEnglishText(rawText);
+        const customObj = {
+          id: `custom_${Date.now()}`,
+          week: 3,
+          level: 'カスタム英文特訓',
+          type: 'Custom Import',
+          title: `🛠️ ${title}`,
+          hint: '自動スラッシュ分割されたカスタム英文です。②スラッシュモード、③返り読み防止消去、④高速フラッシュ、🎧音声読み上げのすべてが利用可能です！',
+          chunks: chunks,
+          vocab: [{ en: 'custom text', jp: 'カスタム英文' }],
+          fullTranslation: '【カスタム英文】チャンクごとに前から英語の語順のまま意味を組み立てましょう。',
+          questions: [
+            {
+              q: '1. Did you read this custom passage from start to finish without regressions (backward reading)?',
+              choices: [
+                '(A) Yes, I understood the main idea in a single forward pass!',
+                '(B) Almost, I only paused once or twice.',
+                '(C) I need one more run with Slash or RSVP mode.',
+                '(D) Let me try with the TTS Audio Pacemaker.'
+              ],
+              answer: 0,
+              explanation: 'カスタム英文でも「返り読みゼロで前から1回で要旨を掴む」ことが最高の実戦トレーニングになります！'
+            }
+          ]
+        };
+        PASSAGES.push(customObj);
+        state.currentPassageIdx = PASSAGES.length - 1;
+        state.currentMode = 'slash';
+        populatePassageSelect();
+        switchTab('trainer');
+        updateModeDescriptions();
+        resetReadingSession();
+        showToast(`カスタム英文（${countPassageWords(customObj)}語・${chunks.length}チャンク）をトレーナーに読み込みました！`, 'success');
+      });
+
+      // Custom Vocab Add & Export
+      document.getElementById('addCustomVocabBtn').addEventListener('click', () => {
+        const en = document.getElementById('newVocabEn').value.trim();
+        const jp = document.getElementById('newVocabJp').value.trim();
+        if (!en || !jp) {
+          showToast('英単語と意味の両方を入力してください。', 'warn');
+          return;
+        }
+        addVocabToBook(en, jp);
+        document.getElementById('newVocabEn').value = '';
+        document.getElementById('newVocabJp').value = '';
+      });
+
+      document.getElementById('exportVocabBtn').addEventListener('click', () => {
+        const text = state.savedVocab.map(v => `${v.en}\t${v.jp}`).join('\n');
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          showToast('My単語帳リストをクリップボードにコピーしました！', 'success');
+        } catch (e) {
+          showToast('コピーに失敗しました。', 'warn');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
